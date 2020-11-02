@@ -26,7 +26,6 @@ namespace API.Controllers
                 .Select(x => new MedicamentDTO(x))
                 .ToListAsync();
 
-
             return Ok(new GetMedicamentsDTO(medicaments));
         }
     }
