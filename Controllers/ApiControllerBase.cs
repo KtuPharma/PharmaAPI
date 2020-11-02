@@ -1,6 +1,7 @@
 ﻿using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using API.Models.DTO;
 
 namespace API.Controllers
 {
@@ -8,6 +9,13 @@ namespace API.Controllers
     {
         private const string ApiHeader = "X-Api-Request";
         protected const string ApiContentType = "application/json";
+
+        protected ApiContext Context { get; }
+
+        public ApiControllerBase(ApiContext context)
+        {
+            Context = context;
+        }
 
         protected bool IsValidApiRequest()
         {
