@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace API.Models
+namespace API.Models.DTO
 {
     public class ErrorDTO
     {

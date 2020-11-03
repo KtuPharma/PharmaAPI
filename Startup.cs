@@ -1,8 +1,11 @@
+using API.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MySql.Data.MySqlClient;
 
 namespace API
 {
@@ -13,11 +16,20 @@ namespace API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var builder = new MySqlConnectionStringBuilder(Configuration.GetConnectionString("DefaultConnection"))
+            {
+                Server = Configuration["Server"],
+                Database = Configuration["Database"],
+                UserID = Configuration["Uid"],
+                Password = Configuration["DbPassword"],
+            };
+            services.AddDbContext<ApiContext>(opt => opt.UseMySQL(builder.ConnectionString));
+
             services.AddControllers().AddNewtonsoftJson();
 
             services.AddCors(options =>
@@ -32,11 +44,14 @@ namespace API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApiContext context)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                var seed = new Seeder(context);
+                seed.Seed();
             }
 
             app.UseCors("AllowAll");
