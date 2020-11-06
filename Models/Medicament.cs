@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using API.Models.Enums;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace API.Models
 {
@@ -33,5 +33,7 @@ namespace API.Models
 
         [Required]
         public PharmaceuticalFormId Form { get; set; }
+
+        public ICollection<ProductBalance> Balances { get; set; }
     }
 }

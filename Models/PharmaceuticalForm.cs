@@ -1,6 +1,6 @@
-﻿namespace API.Models.Enums
+﻿namespace API.Models
 {
-    public enum PharmaceuticalFormId : int
+    public enum PharmaceuticalFormId
     {
         Tablets = 1,
         Syrup,
