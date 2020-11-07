@@ -3,54 +3,21 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20201106224513_CreatePharmacyTable")]
+    partial class CreatePharmacyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("API.Models.Department", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Department");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Pharmacy"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Warehouse"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Transportation"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Admin"
-                        });
-                });
 
             modelBuilder.Entity("API.Models.Employee", b =>
                 {
@@ -91,46 +58,11 @@ namespace API.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PharmacyId");
 
-                    b.HasIndex("WarehouseId");
-
                     b.ToTable("Employee");
-                });
-
-            modelBuilder.Entity("API.Models.EmployeeStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmployeeStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Employed"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Vacationing"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Fired"
-                        });
                 });
 
             modelBuilder.Entity("API.Models.Medicament", b =>
@@ -171,27 +103,6 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Medicaments");
-                });
-
-            modelBuilder.Entity("API.Models.MedicineProvider", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MedicineProvider");
                 });
 
             modelBuilder.Entity("API.Models.Message", b =>
@@ -255,51 +166,6 @@ namespace API.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("API.Models.OrderStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrderStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Waiting"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Preparing"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Prepared"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Delivering"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Delivered"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Canceled"
-                        });
                 });
 
             modelBuilder.Entity("API.Models.PharmaceuticalForm", b =>
@@ -384,21 +250,6 @@ namespace API.Migrations
                     b.ToTable("Pharmacy");
                 });
 
-            modelBuilder.Entity("API.Models.PharmacyWarehouse", b =>
-                {
-                    b.Property<int>("PharmacyId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PharmacyId", "WarehouseId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("PharmacyWarehouse");
-                });
-
             modelBuilder.Entity("API.Models.ProductBalance", b =>
                 {
                     b.Property<int>("Id")
@@ -420,13 +271,7 @@ namespace API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<int?>("ProviderId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("TransactionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("WarehouseId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -437,28 +282,9 @@ namespace API.Migrations
 
                     b.HasIndex("PharmacyId");
 
-                    b.HasIndex("ProviderId");
-
                     b.HasIndex("TransactionId");
 
-                    b.HasIndex("WarehouseId");
-
                     b.ToTable("ProductBalance");
-                });
-
-            modelBuilder.Entity("API.Models.ProviderWarehouse", b =>
-                {
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProviderId", "WarehouseId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("ProviderWarehouse");
                 });
 
             modelBuilder.Entity("API.Models.Register", b =>
@@ -541,31 +367,6 @@ namespace API.Migrations
                     b.ToTable("Transaction");
                 });
 
-            modelBuilder.Entity("API.Models.TransactionMethod", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TransactionMethod");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Cash"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Card"
-                        });
-                });
-
             modelBuilder.Entity("API.Models.Truck", b =>
                 {
                     b.Property<int>("Id")
@@ -610,41 +411,11 @@ namespace API.Migrations
                     b.ToTable("TruckEmployees");
                 });
 
-            modelBuilder.Entity("API.Models.Warehouse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Warehouse");
-                });
-
             modelBuilder.Entity("API.Models.Employee", b =>
                 {
                     b.HasOne("API.Models.Pharmacy", "Pharmacy")
                         .WithMany("Employees")
                         .HasForeignKey("PharmacyId");
-
-                    b.HasOne("API.Models.Warehouse", "Warehouse")
-                        .WithMany("Employees")
-                        .HasForeignKey("WarehouseId");
                 });
 
             modelBuilder.Entity("API.Models.Message", b =>
@@ -659,21 +430,6 @@ namespace API.Migrations
                     b.HasOne("API.Models.Employee", "Employee")
                         .WithMany("Orders")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("API.Models.PharmacyWarehouse", b =>
-                {
-                    b.HasOne("API.Models.Pharmacy", "Pharmacy")
-                        .WithMany("PharmacyWarehouses")
-                        .HasForeignKey("PharmacyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.Warehouse", "Warehouse")
-                        .WithMany("PharmacyWarehouses")
-                        .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -694,32 +450,9 @@ namespace API.Migrations
                         .WithMany("Products")
                         .HasForeignKey("PharmacyId");
 
-                    b.HasOne("API.Models.MedicineProvider", "Provider")
-                        .WithMany("Products")
-                        .HasForeignKey("ProviderId");
-
                     b.HasOne("API.Models.Transaction", "Transaction")
                         .WithMany("Products")
                         .HasForeignKey("TransactionId");
-
-                    b.HasOne("API.Models.Warehouse", "Warehouse")
-                        .WithMany("Products")
-                        .HasForeignKey("WarehouseId");
-                });
-
-            modelBuilder.Entity("API.Models.ProviderWarehouse", b =>
-                {
-                    b.HasOne("API.Models.MedicineProvider", "Provider")
-                        .WithMany("ProviderWarehouses")
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.Warehouse", "Warehouse")
-                        .WithMany("ProviderWarehouses")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.Register", b =>

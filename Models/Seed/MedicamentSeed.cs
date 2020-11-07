@@ -1,6 +1,4 @@
-﻿using API.Models.Enums;
-
-namespace API.Models.Seed
+﻿namespace API.Models.Seed
 {
     public static class MedicamentSeed
     {
