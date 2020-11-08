@@ -7,6 +7,7 @@ namespace API.Models
     {
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<TruckEmployee> TruckEmployees { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
