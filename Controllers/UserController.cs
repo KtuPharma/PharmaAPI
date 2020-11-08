@@ -13,17 +13,17 @@ namespace API.Controllers
     [Route("api/v1/users")]
     [ApiController]
     [Produces(ApiContentType)]
-
     public class UserController : ApiControllerBase
     {
-        private readonly UserManager<UserDTO> _userManager;
-        private readonly SignInManager<UserDTO> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwt;
+
         public UserController(
-            ApiContext context, 
+            ApiContext context,
             IConfiguration config,
-            UserManager<UserDTO> userManager,
-            SignInManager<UserDTO> signInManager) :
+            UserManager<User> userManager,
+            SignInManager<User> signInManager) :
             base(context)
         {
             _userManager = userManager;
@@ -36,12 +36,12 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(AuthDTO model)
         {
-
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, lockoutOnFailure: false);
+            var result =
+                await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, lockoutOnFailure: false);
             if (result.IsLockedOut)
                 return ApiBadRequest("User account locked out.");
 
@@ -50,21 +50,24 @@ namespace API.Controllers
 
             return Ok(new
             {
-                token = _jwt.GenerateSecurityToken(new User()
+                token = _jwt.GenerateSecurityToken(new JwtUser()
                 {
                     Username = user.UserName,
                     Email = user.Email
                 })
             });
         }
-    
 
-    [HttpPost("signup")]
+
+        [HttpPost("signup")]
         [AllowAnonymous]
         public async Task<IActionResult> Signup(AuthDTO model)
         {
-
-            var user = new UserDTO { UserName = model.Username ?? model.Email, Email = model.Email };
+            var user = new User
+            {
+                UserName = model.Username ?? model.Email,
+                Email = model.Email
+            };
 
             foreach (var validator in _userManager.PasswordValidators)
             {
@@ -77,15 +80,13 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
 
-            return Created("", new
+            string token = _jwt.GenerateSecurityToken(new JwtUser
             {
-                token = _jwt.GenerateSecurityToken(new User()
-                {
-                    Username = user.UserName,
-                    Email = user.Email
-                })
+                Username = user.UserName,
+                Email = user.Email
             });
 
+            return Created("", new {token});
         }
     }
 }

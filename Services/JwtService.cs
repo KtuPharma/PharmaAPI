@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace API.Services
 {
@@ -18,11 +15,11 @@ namespace API.Services
 
         public JwtService(IConfiguration config)
         {
-            _secret = "boom";//config.GetSection("Jwt").GetSection("SecretKey").Value;
-            _expirationDays = 30;//int.Parse(config.GetSection("Jwt").GetSection("ExpirationDays").Value);
+            _secret = config.GetSection("Jwt").GetSection("SecretKey").Value;
+            _expirationDays = int.Parse(config.GetSection("Jwt").GetSection("ExpirationDays").Value);
         }
 
-        public string GenerateSecurityToken(User user)
+        public string GenerateSecurityToken(JwtUser jwtUser)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secret);
@@ -30,11 +27,12 @@ namespace API.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.Username)
+                    new Claim(ClaimTypes.Email, jwtUser.Email),
+                    new Claim(ClaimTypes.Name, jwtUser.Username)
                 }),
-                Expires = DateTime.UtcNow.AddDays(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Expires = DateTime.UtcNow.AddDays(_expirationDays),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
