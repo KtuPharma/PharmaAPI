@@ -88,5 +88,12 @@ namespace API.Controllers
 
             return Created("", new {token});
         }
+
+        [HttpGet("Me")]
+         public async Task<IActionResult> getme()
+        {
+            return Ok( HttpContext.User.Identity.Name);
+        }
+
     }
 }
