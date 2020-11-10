@@ -16,5 +16,8 @@ namespace API.Models.DTO
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
     }
 }

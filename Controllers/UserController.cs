@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,17 +19,20 @@ namespace API.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtService _jwt;
 
         public UserController(
             ApiContext context,
             IConfiguration config,
             UserManager<User> userManager,
-            SignInManager<User> signInManager) :
+            SignInManager<User> signInManager,
+            RoleManager<IdentityRole> roleManager) :
             base(context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _jwt = new JwtService(config);
         }
 
@@ -48,12 +53,16 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return ApiBadRequest("Invalid username or password.");
 
+            List<string> roles = (List<string>) await _userManager.GetRolesAsync(user);
+
+
             return Ok(new
             {
                 token = _jwt.GenerateSecurityToken(new JwtUser()
                 {
                     Username = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    roleId = Int32.Parse(roles.First())
                 })
             });
         }
@@ -63,10 +72,27 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Signup(AuthDTO model)
         {
+            if(!(await _roleManager.RoleExistsAsync("0")))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("0"));
+            }
+            if (!(await _roleManager.RoleExistsAsync("1")))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("1"));
+            }
+            if (!(await _roleManager.RoleExistsAsync("2")))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("2"));
+            }
+            if (!(await _roleManager.RoleExistsAsync("3")))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("3"));
+            }
+
             var user = new User
             {
                 UserName = model.Username ?? model.Email,
-                Email = model.Email
+                Email = model.Email,
             };
 
             foreach (var validator in _userManager.PasswordValidators)
@@ -80,17 +106,32 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
 
+           
+
+            
+            var userFromDb = await _userManager.FindByNameAsync(user.UserName);
+            if (model.RoleId.ToString() == "0")
+                await _userManager.AddToRoleAsync(userFromDb, "0");
+            if (model.RoleId.ToString() == "1")
+                await _userManager.AddToRoleAsync(userFromDb, "1");
+            if (model.RoleId.ToString() == "2")
+                await _userManager.AddToRoleAsync(userFromDb, "2");
+            if (model.RoleId.ToString() == "3")
+                await _userManager.AddToRoleAsync(userFromDb, "3");
+
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
                 Username = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                roleId = model.RoleId
             });
 
             return Created("", new {token});
         }
 
+        [Authorize(Roles = "0")]
         [HttpGet("Me")]
-         public async Task<IActionResult> getme()
+         public async Task<IActionResult> getMe()
         {
             return Ok( HttpContext.User.Identity.Name);
         }
