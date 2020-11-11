@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -38,7 +37,7 @@ namespace API.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(AuthDTO model)
+        public async Task<IActionResult> Login(LoginDTO model)
         {
             if (!IsValidApiRequest())
             {
@@ -65,31 +64,25 @@ namespace API.Controllers
                 {
                     Username = user.UserName,
                     Email = user.Email,
-                    roleId = (DepartmentId)Int32.Parse(roles.First())
+                    roleId = (DepartmentId)Enum.Parse(typeof(DepartmentId), roles.First(), true)
                 })
             });
         }
 
         [HttpPost("signup")]
         [AllowAnonymous]
-        public async Task<IActionResult> Signup(AuthDTO model)
+        public async Task<IActionResult> Signup(RegisterDTO model)
         {
-            if (!(await _roleManager.RoleExistsAsync("1")))
+            if (!IsValidApiRequest())
             {
-                await _roleManager.CreateAsync(new IdentityRole("1"));
+                return ApiBadRequest("Invalid Headers!");
             }
-            if (!(await _roleManager.RoleExistsAsync("2")))
+
+            if (!(await _roleManager.RoleExistsAsync(model.RoleId.ToString())))
             {
-                await _roleManager.CreateAsync(new IdentityRole("2"));
+                await _roleManager.CreateAsync(new IdentityRole(model.RoleId.ToString()));
             }
-            if (!(await _roleManager.RoleExistsAsync("3")))
-            {
-                await _roleManager.CreateAsync(new IdentityRole("3"));
-            }
-            if (!(await _roleManager.RoleExistsAsync("4")))
-            {
-                await _roleManager.CreateAsync(new IdentityRole("4"));
-            }
+
 
             var user = new User
             {
@@ -110,14 +103,9 @@ namespace API.Controllers
 
             var userFromDb = await _userManager.FindByNameAsync(user.UserName);
 
-            if (model.RoleId.ToString() == "1")
-                await _userManager.AddToRoleAsync(userFromDb, "1");
-            if (model.RoleId.ToString() == "2")
-                await _userManager.AddToRoleAsync(userFromDb, "2");
-            if (model.RoleId.ToString() == "3")
-                await _userManager.AddToRoleAsync(userFromDb, "3");
-            if (model.RoleId.ToString() == "4")
-                await _userManager.AddToRoleAsync(userFromDb, "4");
+            var asignedResult = await _userManager.AddToRoleAsync(userFromDb, model.RoleId.ToString());
+            if (!asignedResult.Succeeded)
+                return ApiBadRequest(asignedResult.Errors.First().Description);
 
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
@@ -126,14 +114,14 @@ namespace API.Controllers
                 roleId = model.RoleId
             });
 
-            return Created("", new {token});
+            return Created("", new { token });
         }
 
         [Authorize(Roles = "Pharmacy")]
         [HttpGet("RoleTest")]
         public async Task<IActionResult> RoleTest1()
         {
-            return Ok( HttpContext.User.Identity.Name);
+            return Ok(HttpContext.User.Identity.Name);
         }
     }
 }

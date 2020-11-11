@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace API.Models.DTO
 {
-    public class AuthDTO
+    public class RegisterDTO
     {
         [Required]
         [EmailAddress]
