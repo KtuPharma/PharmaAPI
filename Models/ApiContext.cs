@@ -2,6 +2,7 @@
 using API.Models.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace API.Models
 {
@@ -39,28 +40,13 @@ namespace API.Models
             modelBuilder.ApplyConfiguration(new PharmacyWarehouseConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderWarehouseConfiguration());
 
-            modelBuilder.Entity<IdentityUser>(entity => entity.Property(m => m.Id).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUser>(entity => entity.Property(m => m.NormalizedEmail).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUser>(entity => entity.Property(m => m.NormalizedUserName).HasMaxLength(85));
-
-            modelBuilder.Entity<IdentityRole>(entity => entity.Property(m => m.Id).HasMaxLength(85));
-            modelBuilder.Entity<IdentityRole>(entity => entity.Property(m => m.NormalizedName).HasMaxLength(85));
-
-            modelBuilder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.ProviderKey).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(85));
-
-            modelBuilder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(85));
-
-            modelBuilder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.Name).HasMaxLength(85));
-
-            modelBuilder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(85));
-            modelBuilder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(85));
-            modelBuilder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(85));
-            modelBuilder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(85));
+            modelBuilder.ApplyConfiguration(new IdentityUserConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserLoginConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserTokenConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserClaimConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityRoleClaimConfiguration());
         }
     }
 }

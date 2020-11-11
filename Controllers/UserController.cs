@@ -36,11 +36,15 @@ namespace API.Controllers
             _jwt = new JwtService(config);
         }
 
-
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login(AuthDTO model)
         {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
                 return ApiBadRequest("User does not exist.");
@@ -53,8 +57,7 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return ApiBadRequest("Invalid username or password.");
 
-            List<string> roles = (List<string>) await _userManager.GetRolesAsync(user);
-
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(new
             {
@@ -67,12 +70,16 @@ namespace API.Controllers
             });
         }
 
-
         [HttpPost("signup")]
         [AllowAnonymous]
         public async Task<IActionResult> Signup(AuthDTO model)
         {
-            if(!(await _roleManager.RoleExistsAsync("0")))
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            if (!(await _roleManager.RoleExistsAsync("0")))
             {
                 await _roleManager.CreateAsync(new IdentityRole("0"));
             }
@@ -106,9 +113,6 @@ namespace API.Controllers
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
 
-           
-
-            
             var userFromDb = await _userManager.FindByNameAsync(user.UserName);
             if (model.RoleId.ToString() == "0")
                 await _userManager.AddToRoleAsync(userFromDb, "0");
@@ -131,7 +135,7 @@ namespace API.Controllers
 
         [Authorize(Roles = "0")]
         [HttpGet("Me")]
-         public async Task<IActionResult> getMe()
+        public async Task<IActionResult> getMe()
         {
             return Ok( HttpContext.User.Identity.Name);
         }
