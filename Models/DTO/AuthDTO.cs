@@ -18,6 +18,6 @@ namespace API.Models.DTO
         public string Password { get; set; }
 
         [Required]
-        public int RoleId { get; set; }
+        public DepartmentId RoleId { get; set; }
     }
 }

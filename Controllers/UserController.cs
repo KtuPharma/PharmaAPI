@@ -65,7 +65,7 @@ namespace API.Controllers
                 {
                     Username = user.UserName,
                     Email = user.Email,
-                    roleId = Int32.Parse(roles.First())
+                    roleId = (DepartmentId)Int32.Parse(roles.First())
                 })
             });
         }
@@ -74,15 +74,6 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Signup(AuthDTO model)
         {
-            if (!IsValidApiRequest())
-            {
-                return ApiBadRequest("Invalid Headers!");
-            }
-
-            if (!(await _roleManager.RoleExistsAsync("0")))
-            {
-                await _roleManager.CreateAsync(new IdentityRole("0"));
-            }
             if (!(await _roleManager.RoleExistsAsync("1")))
             {
                 await _roleManager.CreateAsync(new IdentityRole("1"));
@@ -94,6 +85,10 @@ namespace API.Controllers
             if (!(await _roleManager.RoleExistsAsync("3")))
             {
                 await _roleManager.CreateAsync(new IdentityRole("3"));
+            }
+            if (!(await _roleManager.RoleExistsAsync("4")))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("4"));
             }
 
             var user = new User
@@ -114,14 +109,15 @@ namespace API.Controllers
                 return ApiBadRequest(result.Errors.First().Description);
 
             var userFromDb = await _userManager.FindByNameAsync(user.UserName);
-            if (model.RoleId.ToString() == "0")
-                await _userManager.AddToRoleAsync(userFromDb, "0");
+
             if (model.RoleId.ToString() == "1")
                 await _userManager.AddToRoleAsync(userFromDb, "1");
             if (model.RoleId.ToString() == "2")
                 await _userManager.AddToRoleAsync(userFromDb, "2");
             if (model.RoleId.ToString() == "3")
                 await _userManager.AddToRoleAsync(userFromDb, "3");
+            if (model.RoleId.ToString() == "4")
+                await _userManager.AddToRoleAsync(userFromDb, "4");
 
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
@@ -133,12 +129,11 @@ namespace API.Controllers
             return Created("", new {token});
         }
 
-        [Authorize(Roles = "0")]
-        [HttpGet("Me")]
-        public async Task<IActionResult> getMe()
+        [Authorize(Roles = "Pharmacy")]
+        [HttpGet("RoleTest")]
+        public async Task<IActionResult> RoleTest1()
         {
             return Ok( HttpContext.User.Identity.Name);
         }
-
     }
 }
