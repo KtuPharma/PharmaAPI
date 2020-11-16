@@ -1,17 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using API.Models.Configurations;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace API.Models
 {
-    public class ApiContext : DbContext
+    public class ApiContext : IdentityDbContext<User>
     {
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<TruckEmployee> TruckEmployees { get; set; }
+        public DbSet<User> User { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
             modelBuilder.ApplyConfiguration(new OrderStatusConfiguration());
             modelBuilder.ApplyConfiguration(new TransactionMethodConfiguration());
@@ -34,7 +40,13 @@ namespace API.Models
             modelBuilder.ApplyConfiguration(new PharmacyWarehouseConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderWarehouseConfiguration());
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new IdentityUserConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserLoginConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserTokenConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityUserClaimConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentityRoleClaimConfiguration());
         }
     }
 }
