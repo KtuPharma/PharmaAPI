@@ -16,22 +16,23 @@ namespace API.Controllers
     [Produces(ApiContentType)]
     public class UserController : ApiControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<Employee> _userManager;
+        //private readonly SignInManager<Employee> _signInManager;
+        //private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtService _jwt;
 
         public UserController(
             ApiContext context,
             IConfiguration config,
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            RoleManager<IdentityRole> roleManager) :
+            UserManager<Employee> userManager
+            //SignInManager<Employee> signInManager,
+            //RoleManager<IdentityRole> roleManager
+            ) :
             base(context)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
+            //_signInManager = signInManager;
+            //_roleManager = roleManager;
             _jwt = new JwtService(config);
         }
 
@@ -48,25 +49,19 @@ namespace API.Controllers
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            var result =
-                await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, lockoutOnFailure: false);
-            if (result.IsLockedOut)
-                return ApiBadRequest("User account locked out.");
-
-            if (!result.Succeeded)
-                return ApiBadRequest("Invalid username or password.");
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            return Ok(new
-            {
-                token = _jwt.GenerateSecurityToken(new JwtUser()
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password)) {
+                return Ok(new
                 {
-                    Username = user.UserName,
-                    Email = user.Email,
-                    roleId = (DepartmentId)Enum.Parse(typeof(DepartmentId), roles.First(), true)
-                })
-            });
+                    token = _jwt.GenerateSecurityToken(new JwtUser()
+                    {
+                        Username = user.Username,
+                        Email = user.Email,
+                        roleId = user.Department
+                    })
+                });
+            }
+            
+            return ApiBadRequest("Bad password");
         }
 
         [HttpPost("signup")]
@@ -78,16 +73,14 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            if (!(await _roleManager.RoleExistsAsync(model.RoleId.ToString())))
+            var user = new Employee
             {
-                await _roleManager.CreateAsync(new IdentityRole(model.RoleId.ToString()));
-            }
-
-
-            var user = new User
-            {
-                UserName = model.Username ?? model.Email,
+                Username = model.Username,
                 Email = model.Email,
+                Department = model.RoleId,
+                FirstName = "Test",
+                LastName = "Testing",
+                PersonalCode = "39000000000"
             };
 
             foreach (var validator in _userManager.PasswordValidators)
@@ -99,22 +92,24 @@ namespace API.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return ApiBadRequest(result.Errors.First().Description);
-
-            var userFromDb = await _userManager.FindByNameAsync(user.UserName);
-
-            var asignedResult = await _userManager.AddToRoleAsync(userFromDb, model.RoleId.ToString());
-            if (!asignedResult.Succeeded)
-                return ApiBadRequest(asignedResult.Errors.First().Description);
-
+                return ApiBadRequest("AAA" + result.Errors.First().Description);
+            
+            var userFromDb = await _userManager.FindByNameAsync(model.Username);
+            
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
-                Username = user.UserName,
+                Username = user.Username,
                 Email = user.Email,
                 roleId = model.RoleId
             });
 
             return Created("", new { token });
+        }
+
+        [Authorize]
+        [HttpGet()]
+        public async Task<IActionResult> GetAllUsers() {
+            return Ok(Context.Employees.ToList());
         }
 
         [Authorize(Roles = "Pharmacy")]

@@ -49,9 +49,13 @@ namespace API
                 });
             });
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApiContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentityCore<Employee>();
+            services.AddScoped<IUserStore<Employee>, AppUserStore>();
+            services.AddScoped<IUserRoleStore<Employee>, AppUserStore>();
+
+            // services.AddIdentity<User, IdentityRole>()
+            //     .AddEntityFrameworkStores<ApiContext>()
+            //     .AddDefaultTokenProviders();
 
             string _secret = Configuration.GetSection("Jwt").GetSection("SecretKey").Value;
 

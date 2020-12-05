@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using API.Models.Seed;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Models
 {
@@ -15,6 +16,8 @@ namespace API.Models
         public void Seed()
         {
             _context.Database.EnsureCreated();
+            // _context.Database.EnsureDeleted();
+            // _context.Database.Migrate();
 
             var testObj = _context.Medicaments?.FirstOrDefault(e => e.Id == 1);
             if (testObj != null) return;

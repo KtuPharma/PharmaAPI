@@ -15,3 +15,20 @@ dotnet user-secrets set "Database" "YourDatabaseName"
 dotnet user-secrets set "Uid" "YourUsername"
 dotnet user-secrets set "DbPassword" "YourPassword"
 ```
+
+# How to start
+
+```bash
+dotnet tool install --global dotnet-ef
+#fix
+dotnet ef database drop
+rm -rf Migrations/ # kazkokiu nesamoniu priburta
+dotnet ef migrations add reset
+dotnet ef database update
+
+# update
+dotnet ef migrations add MakeEmployeeUsernameEmail
+dotnet ef database update
+
+dotnet run
+```
