@@ -23,12 +23,11 @@ dotnet tool install --global dotnet-ef
 #fix
 dotnet ef database drop
 rm -rf Migrations/ # kazkokiu nesamoniu priburta
-dotnet ef migrations add reset
+dotnet ef migrations add InitialCreate
 dotnet ef database update
 
 # update
 dotnet ef migrations add MakeEmployeeUsernameEmail
 dotnet ef database update
 
-dotnet run
 ```

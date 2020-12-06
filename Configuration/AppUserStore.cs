@@ -39,7 +39,7 @@ namespace API.Configuration
             context.Employees.Add(new Employee{
                 Username = user.Username,
                 Email = user.Email,
-                RegisterDate = new System.DateTime(),
+                RegisterDate = new System.DateTime(), /// CIA
                 Password = user.Password,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -57,7 +57,7 @@ namespace API.Configuration
 
         public void Dispose()
         {
-            //throw new System.NotImplementedException();
+
         }
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)

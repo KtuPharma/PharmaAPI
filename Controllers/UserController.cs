@@ -17,22 +17,15 @@ namespace API.Controllers
     public class UserController : ApiControllerBase
     {
         private readonly UserManager<Employee> _userManager;
-        //private readonly SignInManager<Employee> _signInManager;
-        //private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtService _jwt;
 
         public UserController(
             ApiContext context,
             IConfiguration config,
             UserManager<Employee> userManager
-            //SignInManager<Employee> signInManager,
-            //RoleManager<IdentityRole> roleManager
             ) :
             base(context)
         {
-            _userManager = userManager;
-            //_signInManager = signInManager;
-            //_roleManager = roleManager;
             _jwt = new JwtService(config);
         }
 
@@ -92,7 +85,7 @@ namespace API.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return ApiBadRequest("AAA" + result.Errors.First().Description);
+                return ApiBadRequest(result.Errors.First().Description);
             
             var userFromDb = await _userManager.FindByNameAsync(model.Username);
             
