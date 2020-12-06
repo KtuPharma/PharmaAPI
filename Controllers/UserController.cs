@@ -27,6 +27,7 @@ namespace API.Controllers
             base(context)
         {
             _jwt = new JwtService(config);
+            _userManager = userManager;
         }
 
         [HttpPost("login")]
