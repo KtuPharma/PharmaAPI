@@ -3,14 +3,16 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20201206134222_AddInSaleAttributeToMedicaments")]
+    partial class AddInSaleAttributeToMedicaments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -437,9 +439,6 @@ namespace API.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime");
 
-                    b.Property<bool>("InSale")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<int>("MedicamentId")
                         .HasColumnType("int");
 
@@ -453,9 +452,6 @@ namespace API.Migrations
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<int?>("ProviderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int?>("TransactionId")
