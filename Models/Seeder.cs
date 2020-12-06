@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using API.Models.Seed;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Models
 {

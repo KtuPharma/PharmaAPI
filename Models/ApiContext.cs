@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace API.Models
 {
-    public class ApiContext : IdentityDbContext<User>
+    public class ApiContext : DbContext
     {
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<TruckEmployee> TruckEmployees { get; set; }
-        public DbSet<User> User { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
@@ -39,14 +39,6 @@ namespace API.Models
             modelBuilder.ApplyConfiguration(new MedicineProviderConfiguration());
             modelBuilder.ApplyConfiguration(new PharmacyWarehouseConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderWarehouseConfiguration());
-
-            modelBuilder.ApplyConfiguration(new IdentityUserConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityRoleConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityUserLoginConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityUserRoleConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityUserTokenConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityUserClaimConfiguration());
-            modelBuilder.ApplyConfiguration(new IdentityRoleClaimConfiguration());
         }
     }
 }

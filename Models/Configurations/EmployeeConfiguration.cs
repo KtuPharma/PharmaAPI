@@ -22,6 +22,9 @@ namespace API.Models.Configurations
             builder
                 .HasOne(e => e.Warehouse)
                 .WithMany(w => w.Employees);
+
+            builder.HasIndex(e => e.Username).IsUnique();
+            builder.HasIndex(e => e.Email).IsUnique();            
         }
     }
 }

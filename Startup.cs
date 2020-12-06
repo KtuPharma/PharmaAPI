@@ -49,10 +49,10 @@ namespace API
                 });
             });
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApiContext>()
-                .AddDefaultTokenProviders();
-
+            services.AddIdentityCore<Employee>();
+            services.AddScoped<IUserStore<Employee>, AppUserStore>();
+            services.AddScoped<IUserRoleStore<Employee>, AppUserStore>();
+            
             string _secret = Configuration.GetSection("Jwt").GetSection("SecretKey").Value;
 
             // Adding Authentication  
