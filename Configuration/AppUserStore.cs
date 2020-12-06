@@ -22,9 +22,6 @@ namespace API.Configuration
 
         public Task AddToRoleAsync(Employee user, string roleName, CancellationToken cancellationToken)
         {
-            // WE can assing only single role :D 
-            // user.Department = DepartmentId.Admin;
-            // throw new System.NotImplementedException();
             DepartmentId departmentId = (DepartmentId)Enum.Parse(typeof(DepartmentId), roleName, true);
             user.Department = departmentId;
             context.Employees.Update(user);
@@ -139,8 +136,11 @@ namespace API.Configuration
 
         public Task RemoveFromRoleAsync(Employee user, string roleName, CancellationToken cancellationToken)
         {
-            // Well we can't do that;
-            throw new System.NotImplementedException();
+            user.Department = DepartmentId.None;
+            context.Employees.Update(user);
+            context.SaveChanges();
+
+            return Task.FromResult(IdentityResult.Success);
         }
 
         public Task SetEmailAsync(Employee user, string email, CancellationToken cancellationToken)
@@ -151,19 +151,16 @@ namespace API.Configuration
 
         public Task SetEmailConfirmedAsync(Employee user, bool confirmed, CancellationToken cancellationToken)
         {
-            // no code here
             return Task.FromResult(IdentityResult.Success);
         }
 
         public Task SetNormalizedEmailAsync(Employee user, string normalizedEmail, CancellationToken cancellationToken)
         {
-            // i do nothing here
             return Task.FromResult(IdentityResult.Success);
         }
 
         public Task SetNormalizedUserNameAsync(Employee user, string normalizedName, CancellationToken cancellationToken)
         {
-            // yes, i do nothing here;
             return Task.FromResult(IdentityResult.Success);
         }
 
