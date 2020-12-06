@@ -73,7 +73,8 @@ namespace API.Controllers
                 Department = model.RoleId,
                 FirstName = "Test",
                 LastName = "Testing",
-                PersonalCode = "39000000000"
+                PersonalCode = "39000000000",
+                Status = EmployeeStatusId.Employed
             };
 
             foreach (var validator in _userManager.PasswordValidators)

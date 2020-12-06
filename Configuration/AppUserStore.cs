@@ -44,7 +44,8 @@ namespace API.Configuration
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PersonalCode = user.PersonalCode,
-                Department = user.Department
+                Department = user.Department,
+                Status = user.Status
             });
             context.SaveChanges();
             return Task.FromResult(IdentityResult.Success);
