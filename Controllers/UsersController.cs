@@ -23,14 +23,15 @@ namespace API.Controllers
             ApiContext context,
             IConfiguration config,
             UserManager<Employee> userManager
-        ) :
-            base(context)
+            ) :
+            base(context, userManager)
         {
             _jwt = new JwtService(config);
             _userManager = userManager;
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginDTO model)
         {
             if (!IsValidApiRequest())
@@ -38,12 +39,11 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            if (await _userManager.CheckPasswordAsync(user, model.Password))
-            {
+            if (await UserManager.CheckPasswordAsync(user, model.Password)) {
                 return Ok(new
                 {
                     token = _jwt.GenerateSecurityToken(new JwtUser()
@@ -53,7 +53,7 @@ namespace API.Controllers
                     })
                 });
             }
-
+            
             return ApiBadRequest("Bad password");
         }
 
@@ -68,7 +68,7 @@ namespace API.Controllers
 
             foreach (var validator in _userManager.PasswordValidators)
             {
-                var res = await validator.ValidateAsync(_userManager, null, model.Password);
+                var res = await validator.ValidateAsync(UserManager, null, model.Password);
                 if (!res.Succeeded)
                     return ApiBadRequest(res.Errors.First().Description);
             }

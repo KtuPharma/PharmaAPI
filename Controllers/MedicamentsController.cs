@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
 using API.Models.DTO;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace API.Controllers
     [ApiController]
     public class MedicamentsController : ApiControllerBase
     {
-        public MedicamentsController(ApiContext context) : base(context) { }
+        public MedicamentsController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetMedicamentsDTO>>> GetMedicaments()
