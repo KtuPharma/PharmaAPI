@@ -43,12 +43,11 @@ namespace API.Controllers
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password)) {
+            if (await _userManager.CheckPasswordAsync(user, model.Password)) {
                 return Ok(new
                 {
                     token = _jwt.GenerateSecurityToken(new JwtUser()
                     {
-                        Username = user.Username,
                         Email = user.Email,
                         roleId = user.Department
                     })
@@ -88,12 +87,9 @@ namespace API.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
-            
-            var userFromDb = await _userManager.FindByNameAsync(model.Username);
-            
+                        
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
-                Username = user.Username,
                 Email = user.Email,
                 roleId = model.RoleId
             });
@@ -103,13 +99,14 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet()]
-        public async Task<IActionResult> GetAllUsers() {
+        public IActionResult GetAllUsers()
+        {
             return Ok(Context.Employees.ToList());
         }
 
         [Authorize(Roles = "Pharmacy")]
         [HttpGet("RoleTest")]
-        public async Task<IActionResult> RoleTest1()
+        public IActionResult RoleTest1()
         {
             return Ok(HttpContext.User.Identity.Name);
         }
