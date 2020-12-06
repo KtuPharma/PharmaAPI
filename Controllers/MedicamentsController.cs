@@ -28,5 +28,24 @@ namespace API.Controllers
 
             return Ok(new GetMedicamentsDTO(medicaments));
         }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<MedicamentDTO>> UpdateMedicament(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var medicament = await Context.Medicaments
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            medicament.InSale = !medicament.InSale;
+            Context.Medicaments.Update(medicament);
+            Context.SaveChanges();
+
+            return Ok(new MedicamentDTO(medicament));
+        }
     }
 }

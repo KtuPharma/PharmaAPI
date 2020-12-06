@@ -23,11 +23,30 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var medicaments = await Context.ProductBalance
+            var balances = await Context.ProductBalance
                 .Select(x => new ProductBalanceDTO(x))
                 .ToListAsync();
 
-            return Ok(new GetProductBalancesDTO(medicaments));
+            return Ok(new GetProductBalancesDTO(balances));
+        }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<ProductBalanceDTO>> GetProductBalances(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var balance = await Context.ProductBalance
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            balance.InSale = !balance.InSale;
+            Context.ProductBalance.Update(balance);
+            Context.SaveChanges();
+
+            return Ok(new ProductBalanceDTO(balance));
         }
     }
 }
