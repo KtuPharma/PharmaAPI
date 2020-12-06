@@ -60,18 +60,18 @@ namespace API.Configuration
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return Task.FromResult(context.Employees.Where(a => a.Email == normalizedEmail).FirstOrDefault<Employee>());
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Email == normalizedEmail));
         }
 
         public Task<Employee> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            return Task.FromResult(context.Employees.Where(a => a.Id.ToString() == userId).FirstOrDefault<Employee>());
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Id.ToString() == userId));
         }
 
         public Task<Employee> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             logger.LogWarning("FindByNameAsync: {0} -> {}", normalizedUserName, context.Employees.ToList());
-            return Task.FromResult(context.Employees.Where(a => a.Username == normalizedUserName).FirstOrDefault<Employee>());
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Username == normalizedUserName));
         }
 
         public Task<string> GetEmailAsync(Employee user, CancellationToken cancellationToken)
