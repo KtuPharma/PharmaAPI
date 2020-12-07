@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Models.DTO;
+using API.Models.DTO.Administrator;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +9,9 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Models.DTO.Administrator;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace API.Controllers
 {
@@ -68,15 +72,26 @@ namespace API.Controllers
 
             var user = new Employee
             {
+                PersonalCode = model.PersonalCode,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 Username = model.Username,
                 Email = model.Email,
+                Password = model.Password,
                 Department = model.RoleId,
-                FirstName = "Test",
-                LastName = "Testing",
-                PersonalCode = "39000000000",
-                Status = EmployeeStatusId.Employed
+                BirthDate = model.BirthDate,
+                Status = EmployeeStatusId.Employed,
+                RegisterDate = DateTime.Now
             };
 
+            if (model.WorkPlace)
+            {
+                user.Pharmacy = Context.Pharmacy.Where(z => z.Id == model.PharmacyOrWarehouse).FirstOrDefault();
+            }
+            else
+            {
+                user.Warehouse = Context.Warehouse.Where(z => z.Id == model.PharmacyOrWarehouse).FirstOrDefault();
+            }
             foreach (var validator in _userManager.PasswordValidators)
             {
                 var res = await validator.ValidateAsync(_userManager, null, model.Password);
@@ -97,7 +112,66 @@ namespace API.Controllers
             return Created("", new { token });
         }
 
-        [Authorize]
+        [HttpPost("userstatus")]
+        public async Task<IActionResult> UserStatus(StatusDTO model) {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+            Employee user = Context.Employees.Where(z => z.Id == model.Id).FirstOrDefault();
+            user.Status = model.Status;
+            Context.Employees.Update(user);
+            await Context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("providersignup")]
+        public async Task<IActionResult> ProviderSignup(MedicineProviderRegisterDTO model)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var provider = new MedicineProvider
+            {
+                Name = model.Name,
+                Country = model.Country,
+                Status = true
+            };
+            Context.MedicineProvider.Add(provider);
+            await Context.SaveChangesAsync();
+            IList<ProductBalanceRegisterDTO> iList = model.Products as IList<ProductBalanceRegisterDTO>;
+            //ProductBalance product = null;
+            var prod = Context.MedicineProvider
+                .Select(z => new MedicineProvider() { 
+                        Id = z.Id,
+                        Name = z.Name,
+                        Country = z.Country,
+                        Status = z.Status
+                }).ToList().Last();
+            Medicament medicament = Context.Medicaments.Where(z => z.Id == iList[0].Medicament).FirstOrDefault();
+             for (int i = 0; i < iList.Count; i++)
+             {
+                ProductBalance product = new ProductBalance { 
+                   ExpirationDate = iList[i].ExpirationDate,
+                   Price = iList[i].Price,
+                   Medicament = Context.Medicaments.Where(z => z.Id == iList[i].Medicament).FirstOrDefault(),
+                   Warehouse = Context.Warehouse.Where(z => z.Id == iList[i].Warehouse).FirstOrDefault(),
+                   Provider = prod
+                };
+                Context.ProductBalance.Add(product);
+                await Context.SaveChangesAsync();
+            }
+            int t = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                t++;
+            }
+            //atsifiltruojam last id ir pagal tai sudedam warehouses
+            return Ok();
+        }
+            [Authorize]
         [HttpGet()]
         public IActionResult GetAllUsers()
         {
@@ -112,3 +186,4 @@ namespace API.Controllers
         }
     }
 }
+//Truck Employee Problema nežinoma kur jis dirba

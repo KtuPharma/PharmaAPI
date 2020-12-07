@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Models
+namespace API.Models.DTO
 {
-    public class MedicineProvider
+    public class Supplier
     {
         [Key]
         [Required]
@@ -16,12 +19,5 @@ namespace API.Models
         [Required]
         [StringLength(255)]
         public string Country { get; set; }
-
-        [Required]
-        public bool Status { get; set; }
-
-        public ICollection<ProductBalance> Products { get; set; }
-
-        public ICollection<ProviderWarehouse> ProviderWarehouses { get; set; }
     }
 }

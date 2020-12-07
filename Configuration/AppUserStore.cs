@@ -14,7 +14,8 @@ namespace API.Configuration
         private readonly ApiContext _context;
         private readonly ILogger _logger;
 
-        public AppUserStore(ApiContext context, ILogger<AppUserStore> logger) {
+        public AppUserStore(ApiContext context, ILogger<AppUserStore> logger)
+        {
             _context = context;
             _logger = logger;
         }
@@ -25,14 +26,15 @@ namespace API.Configuration
             user.Department = departmentId;
             _context.Employees.Update(user);
             _context.SaveChanges();
-            
+
             return Task.FromResult(IdentityResult.Success);
         }
 
         public Task<IdentityResult> CreateAsync(Employee user, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
-            _context.Employees.Add(new Employee{
+            _context.Employees.Add(new Employee
+            {
                 Username = user.Username,
                 Email = user.Email,
                 RegisterDate = new System.DateTime(),
@@ -40,7 +42,10 @@ namespace API.Configuration
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PersonalCode = user.PersonalCode,
+                Pharmacy = user.Pharmacy,
                 Department = user.Department,
+                Warehouse = user.Warehouse,
+                BirthDate = user.BirthDate,
                 Status = user.Status
             });
             _context.SaveChanges();

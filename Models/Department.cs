@@ -4,9 +4,9 @@
     {
         None = 0,
         Pharmacy = 1,
-        Warehouse,
-        Transportation,
-        Admin
+        Warehouse = 2,
+        Transportation = 3,
+        Admin = 4
     }
 
     public class Department
