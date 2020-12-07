@@ -61,7 +61,8 @@ namespace API.Controllers
             return ApiBadRequest("Bad password");
         }
 
-        [HttpPost("signup")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("adduser")]
         [AllowAnonymous]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
@@ -84,14 +85,27 @@ namespace API.Controllers
                 RegisterDate = DateTime.Now
             };
 
-            if (model.WorkPlace)
+            switch (model.RoleId)
             {
-                user.Pharmacy = Context.Pharmacy.Where(z => z.Id == model.PharmacyOrWarehouse).FirstOrDefault();
+                case DepartmentId.Pharmacy:
+                    user.Pharmacy = Context.Pharmacy.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault();
+                    break;
+                case DepartmentId.Warehouse:
+                    user.Warehouse = Context.Warehouse.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault();
+                    break;
+                case DepartmentId.Transportation:
+                    Context.TruckEmployees.Add(new TruckEmployee() {
+                        Truck = Context.Truck.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault(),
+                        Employee = user
+                    });
+                    break;
             }
-            else
+
+            if (model.RoleId != DepartmentId.Transportation)
             {
-                user.Warehouse = Context.Warehouse.Where(z => z.Id == model.PharmacyOrWarehouse).FirstOrDefault();
+                Context.Employees.Add(user);
             }
+
             foreach (var validator in _userManager.PasswordValidators)
             {
                 var res = await validator.ValidateAsync(_userManager, null, model.Password);
@@ -125,8 +139,9 @@ namespace API.Controllers
             return Ok();
         }
 
-        [HttpPost("providersignup")]
-        public async Task<IActionResult> ProviderSignup(MedicineProviderRegisterDTO model)
+        [Authorize(Roles = "Admin")]
+        [HttpPost("addprovider")]
+        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
         {
             if (!IsValidApiRequest())
             {
@@ -139,39 +154,46 @@ namespace API.Controllers
                 Country = model.Country,
                 Status = true
             };
-            Context.MedicineProvider.Add(provider);
-            await Context.SaveChangesAsync();
-            IList<ProductBalanceRegisterDTO> iList = model.Products as IList<ProductBalanceRegisterDTO>;
-            //ProductBalance product = null;
-            var prod = Context.MedicineProvider
-                .Select(z => new MedicineProvider() { 
-                        Id = z.Id,
-                        Name = z.Name,
-                        Country = z.Country,
-                        Status = z.Status
-                }).ToList().Last();
-            Medicament medicament = Context.Medicaments.Where(z => z.Id == iList[0].Medicament).FirstOrDefault();
-             for (int i = 0; i < iList.Count; i++)
+
+            for (int i = 0; i < model.Products.Count; i++)
              {
-                ProductBalance product = new ProductBalance { 
-                   ExpirationDate = iList[i].ExpirationDate,
-                   Price = iList[i].Price,
-                   Medicament = Context.Medicaments.Where(z => z.Id == iList[i].Medicament).FirstOrDefault(),
-                   Warehouse = Context.Warehouse.Where(z => z.Id == iList[i].Warehouse).FirstOrDefault(),
-                   Provider = prod
-                };
-                Context.ProductBalance.Add(product);
-                await Context.SaveChangesAsync();
+                Context.ProductBalance.Add(new ProductBalance() 
+                { 
+                   ExpirationDate = model.Products[i].ExpirationDate,
+                   Price = model.Products[i].Price,
+                   Medicament = Context.Medicaments.Where(z => z.Id == model.Products[i].Medicament).FirstOrDefault(),
+                   Provider = provider
+                });
             }
-            int t = 0;
-            for (int i = 0; i < 10; i++)
+
+            for (int i = 0; i < model.Warehouse.Count; i++)
             {
-                t++;
+                Context.ProviderWarehouse.Add(new ProviderWarehouse()
+                {
+                    WarehouseId = model.Warehouse[i],
+                    Provider = provider
+                });
             }
-            //atsifiltruojam last id ir pagal tai sudedam warehouses
+            await Context.SaveChangesAsync();
             return Ok();
         }
-            [Authorize]
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("providerstatus/{id}")]
+        public async Task<IActionResult> ProviderStatus(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+            MedicineProvider provider = Context.MedicineProvider.Where(z => z.Id == id).FirstOrDefault();
+            provider.Status = !provider.Status;
+            Context.MedicineProvider.Update(provider);
+            await Context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize]
         [HttpGet()]
         public IActionResult GetAllUsers()
         {
@@ -186,4 +208,3 @@ namespace API.Controllers
         }
     }
 }
-//Truck Employee Problema nežinoma kur jis dirba

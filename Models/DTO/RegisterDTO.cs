@@ -45,13 +45,9 @@ namespace API.Models.DTO
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [JsonProperty("birthDate")]
         public DateTime BirthDate { get; set; }
-        
-        [Required]
-        [JsonProperty("workPlace")]
-        public bool WorkPlace { get; set; }
 
         [Required]
-        [JsonProperty("warehouseOrPharmacy")]
-        public int PharmacyOrWarehouse { get; set; }
+        [JsonProperty("pharmacywarehouseortruck")]
+        public int PharmacyWarehouseOrTruck { get; set; }
     }
 }

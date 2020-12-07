@@ -33,21 +33,6 @@ namespace API.Configuration
         public Task<IdentityResult> CreateAsync(Employee user, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
-            _context.Employees.Add(new Employee
-            {
-                Username = user.Username,
-                Email = user.Email,
-                RegisterDate = new System.DateTime(),
-                Password = user.Password,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PersonalCode = user.PersonalCode,
-                Pharmacy = user.Pharmacy,
-                Department = user.Department,
-                Warehouse = user.Warehouse,
-                BirthDate = user.BirthDate,
-                Status = user.Status
-            });
             _context.SaveChanges();
             return Task.FromResult(IdentityResult.Success);
         }
@@ -59,7 +44,6 @@ namespace API.Configuration
 
         public void Dispose()
         {
-
         }
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)

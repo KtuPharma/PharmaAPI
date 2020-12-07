@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace API.Models.DTO.Administrator
 {
@@ -18,8 +19,5 @@ namespace API.Models.DTO.Administrator
         [Required]
         [JsonProperty("medicament")]
         public int Medicament { get; set; }
-
-        [JsonProperty("warehouse")]
-        public int Warehouse { get; set; }
     }
 }

@@ -3,10 +3,10 @@
     public enum DepartmentId
     {
         None = 0,
-        Pharmacy = 1,
-        Warehouse = 2,
-        Transportation = 3,
-        Admin = 4
+        Pharmacy,
+        Warehouse,
+        Transportation,
+        Admin
     }
 
     public class Department
