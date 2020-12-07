@@ -17,6 +17,9 @@ namespace API.Models
         [StringLength(255)]
         public string Country { get; set; }
 
+        [Required]
+        public bool Status { get; set; }
+
         public ICollection<ProductBalance> Products { get; set; }
 
         public ICollection<ProviderWarehouse> ProviderWarehouses { get; set; }

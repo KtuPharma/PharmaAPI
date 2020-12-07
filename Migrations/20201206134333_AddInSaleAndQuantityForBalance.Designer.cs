@@ -3,14 +3,16 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20201206134333_AddInSaleAndQuantityForBalance")]
+    partial class AddInSaleAndQuantityForBalance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,9 +220,6 @@ namespace API.Migrations
                         .HasColumnType("varchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("tinyint(1)");
-
                     b.HasKey("Id");
 
                     b.ToTable("MedicineProvider");
@@ -282,14 +281,9 @@ namespace API.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
-
-                    b.HasIndex("WarehouseId");
 
                     b.ToTable("Order");
                 });
@@ -704,10 +698,6 @@ namespace API.Migrations
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("API.Models.Warehouse", "Warehouse")
-                        .WithMany("Orders")
-                        .HasForeignKey("WarehouseId");
                 });
 
             modelBuilder.Entity("API.Models.PharmacyWarehouse", b =>

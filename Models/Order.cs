@@ -27,6 +27,8 @@ namespace API.Models
         [Required]
         public OrderStatusId Status { get; set; }
 
+        public Warehouse Warehouse { get; set; }
+
         public ICollection<ProductBalance> Products { get; set; }
         
         [Required]

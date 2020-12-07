@@ -28,6 +28,9 @@ namespace API.Models
         public bool IsReimbursed { get; set; }
 
         [Required]
+        public bool InSale { get; set; }
+
+        [Required]
         [StringLength(255)]
         public string Country { get; set; }
 
