@@ -282,9 +282,14 @@ namespace API.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("WarehouseId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("WarehouseId");
 
                     b.ToTable("Order");
                 });
@@ -699,6 +704,10 @@ namespace API.Migrations
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("API.Models.Warehouse", "Warehouse")
+                        .WithMany("Orders")
+                        .HasForeignKey("WarehouseId");
                 });
 
             modelBuilder.Entity("API.Models.PharmacyWarehouse", b =>
