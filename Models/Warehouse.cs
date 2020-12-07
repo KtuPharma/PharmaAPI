@@ -21,6 +21,8 @@ namespace API.Models
         [StringLength(255)]
         public string Country { get; set; }
 
+        public ICollection<Order> Orders { get; set; }
+
         public ICollection<Employee> Employees { get; set; }
 
         public ICollection<ProductBalance> Products { get; set; }

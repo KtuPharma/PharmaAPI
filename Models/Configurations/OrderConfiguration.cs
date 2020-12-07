@@ -13,6 +13,9 @@ namespace API.Models.Configurations
             builder
                 .HasMany(o => o.Products)
                 .WithOne(b => b.Order);
+            builder
+                .HasOne(o => o.Warehouse)
+                .WithMany(w => w.Orders);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace API.Models
     {
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<TruckEmployee> TruckEmployees { get; set; }
+        public DbSet<Truck> Truck { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<ProductBalance> ProductBalance { get; set; }
@@ -18,6 +19,7 @@ namespace API.Models
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<Pharmacy> Pharmacy { get; set; }
         public DbSet<Warehouse> Warehouse { get; set; }
+        public DbSet<ProviderWarehouse> ProviderWarehouse { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
