@@ -42,7 +42,10 @@ namespace API.Configuration
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PersonalCode = user.PersonalCode,
+                Pharmacy = user.Pharmacy,
                 Department = user.Department,
+                Warehouse = user.Warehouse,
+                BirthDate = user.BirthDate,
                 Status = user.Status
             });
             _context.SaveChanges();

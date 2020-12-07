@@ -3,6 +3,7 @@ using API.Models.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using API.Models;
 
 namespace API.Models
 {
@@ -11,6 +12,12 @@ namespace API.Models
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<TruckEmployee> TruckEmployees { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<ProductBalance> ProductBalance { get; set; }
+        public DbSet<MedicineProvider> MedicineProvider { get; set; }
+        public DbSet<Transaction> Transaction { get; set; }
+        public DbSet<Pharmacy> Pharmacy { get; set; }
+        public DbSet<Warehouse> Warehouse { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
