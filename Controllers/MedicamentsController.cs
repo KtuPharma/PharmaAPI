@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
 using API.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ namespace API.Controllers
             return Ok(new GetMedicamentsDTO(medicaments));
         }
 
+        [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}")]
         public async Task<ActionResult<MedicamentDTO>> UpdateMedicament(int id)
         {

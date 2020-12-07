@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
 using API.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ namespace API.Controllers
     {
         public WarehouseController(ApiContext context) : base(context) { }
 
+        [Authorize(Roles = "Warehouse")]
         [HttpGet]
         public async Task<ActionResult<GetProductBalancesDTO>> GetProductBalances()
         {
@@ -30,8 +32,9 @@ namespace API.Controllers
             return Ok(new GetProductBalancesDTO(balances));
         }
 
+        [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}")]
-        public async Task<ActionResult<ProductBalanceDTO>> GetProductBalances(int id)
+        public async Task<ActionResult<ProductBalanceDTO>> UpdateProductBalance(int id)
         {
             if (!IsValidApiRequest())
             {
