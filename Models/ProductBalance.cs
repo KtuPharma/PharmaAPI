@@ -16,6 +16,12 @@ namespace API.Models
         public decimal Price { get; set; }
 
         [Required]
+        public int Quantity { get; set; }
+
+        [Required]
+        public bool InSale { get; set; }
+
+        [Required]
         public Medicament Medicament { get; set; }
 
         public Order Order { get; set; }
