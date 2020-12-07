@@ -218,6 +218,9 @@ namespace API.Migrations
                         .HasColumnType("varchar(255)")
                         .HasMaxLength(255);
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.ToTable("MedicineProvider");
