@@ -22,7 +22,7 @@ namespace API.Models
         public DbSet<ProviderWarehouse> ProviderWarehouse { get; set; }
         public DbSet<OrderStatus> OrderStatus { get; set; }
 
-        public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
+        public ApiContext(DbContextOptions<ApiContext> options) : base(options) {    }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
