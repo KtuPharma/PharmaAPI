@@ -3,8 +3,8 @@
     public enum EmployeeStatusId
     {
         Employed = 1,
-        Vacationing = 2,
-        Fired = 3
+        Vacationing,
+        Fired
     }
 
     public class EmployeeStatus

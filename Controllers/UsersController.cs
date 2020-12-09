@@ -12,18 +12,19 @@ using System.Threading.Tasks;
 using API.Models.DTO.Administrator;
 using System.Collections;
 using System.Collections.Generic;
+using API.Models;
 
 namespace API.Controllers
 {
-    [Route("api/v1/users")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [Produces(ApiContentType)]
-    public class UserController : ApiControllerBase
+    public class UsersController : ApiControllerBase
     {
         private readonly UserManager<Employee> _userManager;
         private readonly JwtService _jwt;
 
-        public UserController(
+        public UsersController(
             ApiContext context,
             IConfiguration config,
             UserManager<Employee> userManager
@@ -62,7 +63,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("adduser")]
+        [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
@@ -71,31 +72,19 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var user = new Employee
-            {
-                PersonalCode = model.PersonalCode,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Username = model.Username,
-                Email = model.Email,
-                Password = model.Password,
-                Department = model.RoleId,
-                BirthDate = model.BirthDate,
-                Status = EmployeeStatusId.Employed,
-                RegisterDate = DateTime.Now
-            };
+            var user = new Employee(model);
 
             switch (model.RoleId)
             {
                 case DepartmentId.Pharmacy:
-                    user.Pharmacy = Context.Pharmacy.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault();
+                    user.Pharmacy = Context.Pharmacy.FirstOrDefault(z => z.Id == model.PharmacyWarehouseOrTruck);
                     break;
                 case DepartmentId.Warehouse:
-                    user.Warehouse = Context.Warehouse.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault();
+                    user.Warehouse = Context.Warehouse.FirstOrDefault(z => z.Id == model.PharmacyWarehouseOrTruck);
                     break;
                 case DepartmentId.Transportation:
                     Context.TruckEmployees.Add(new TruckEmployee() {
-                        Truck = Context.Truck.Where(z => z.Id == model.PharmacyWarehouseOrTruck).FirstOrDefault(),
+                        Truck = Context.Truck.FirstOrDefault(z => z.Id == model.PharmacyWarehouseOrTruck),
                         Employee = user
                     });
                     break;
@@ -122,17 +111,16 @@ namespace API.Controllers
                 Email = user.Email,
                 roleId = model.RoleId
             });
-
             return Created("", new { token });
         }
 
-        [HttpPost("userstatus")]
+        [HttpPost("status/user")]
         public async Task<IActionResult> UserStatus(StatusDTO model) {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
-            Employee user = Context.Employees.Where(z => z.Id == model.Id).FirstOrDefault();
+            Employee user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
             Context.Employees.Update(user);
             await Context.SaveChangesAsync();
@@ -140,7 +128,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("addprovider")]
+        [HttpPost("provider")]
         public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
         {
             if (!IsValidApiRequest())
@@ -155,22 +143,22 @@ namespace API.Controllers
                 Status = true
             };
 
-            for (int i = 0; i < model.Products.Count; i++)
+            foreach (var products in model.Products)
              {
                 Context.ProductBalance.Add(new ProductBalance() 
                 { 
-                   ExpirationDate = model.Products[i].ExpirationDate,
-                   Price = model.Products[i].Price,
-                   Medicament = Context.Medicaments.Where(z => z.Id == model.Products[i].Medicament).FirstOrDefault(),
+                   ExpirationDate = products.ExpirationDate,
+                   Price = products.Price,
+                   Medicament = Context.Medicaments.FirstOrDefault(z => z.Id == products.Medicament),
                    Provider = provider
                 });
             }
 
-            for (int i = 0; i < model.Warehouse.Count; i++)
+            foreach (var warehouse in model.Warehouse)
             {
                 Context.ProviderWarehouse.Add(new ProviderWarehouse()
                 {
-                    WarehouseId = model.Warehouse[i],
+                    WarehouseId = warehouse,
                     Provider = provider
                 });
             }
@@ -179,14 +167,14 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("providerstatus/{id}")]
+        [HttpPost("status/{id}")]
         public async Task<IActionResult> ProviderStatus(int id)
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
-            MedicineProvider provider = Context.MedicineProvider.Where(z => z.Id == id).FirstOrDefault();
+            MedicineProvider provider = Context.MedicineProvider.FirstOrDefault(z => z.Id == id);
             provider.Status = !provider.Status;
             Context.MedicineProvider.Update(provider);
             await Context.SaveChangesAsync();

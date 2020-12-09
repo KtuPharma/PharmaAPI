@@ -14,7 +14,7 @@ using API.Models.DTO.Administrator;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class OrdersController : ApiControllerBase
     {
@@ -26,7 +26,7 @@ namespace API.Controllers
             _userManager = userManager; 
         }
 
-        [HttpGet("orders")] //return a list of orders without products
+        [HttpGet] //return a list of orders without products
         public async Task<ActionResult<IEnumerable<GetOrdersDTO<ProductBalance>>>> GetOrders()
         {
             if (!IsValidApiRequest())
@@ -43,7 +43,7 @@ namespace API.Controllers
                   AddressFrom = o.AddressFrom,
                   AddressTo = o.AddressTo,
                   Status = o.Status,
-                  Employee = Context.Employees.Where(y => y.PersonalCode == o.Employee.PersonalCode).First().FirstName
+                  Employee = Context.Employees.First(y => y.PersonalCode == o.Employee.PersonalCode).FirstName
               }).ToListAsync();
             return Ok(new GetOrdersDTO<ProductBalance>(orders));
         }
@@ -70,14 +70,14 @@ namespace API.Controllers
                                         Id = x.Id,
                                         ExpirationDate = x.ExpirationDate,
                                         Price = x.Price,
-                                        Medicament = Context.Medicaments.Where(y => y.Id == x.Id).First().Name,
+                                        Medicament = Context.Medicaments.First(y => y.Id == x.Id).Name,
                                         Transaction = Context.Transaction.Where(y => y.Id == x.Id)
                                                             .Select(y => new TransactionInterDTO() { 
                                                                 Id = y.Id,
                                                                 Sum = y.Sum,
                                                                 Date = y.Date,
                                                                 Method = y.Method,
-                                                                Employee = Context.Employees.Where(z => z.PersonalCode == y.Pharmacist.PersonalCode).First().FirstName
+                                                                Employee = Context.Employees.First(z => z.PersonalCode == y.Pharmacist.PersonalCode).FirstName
                                                             }).First(),
                                         Pharmacy = Context.Pharmacy.Where(y => y.Id == x.Id).First().Address,
                                         Warehouse = Context.Warehouse.Where(y => y.Id == x.Id).First().Address,
@@ -87,23 +87,6 @@ namespace API.Controllers
                 }).ToListAsync();           
 
             return Ok(new GetOrdersDTO<ProductBalanceInterDTO>(orders));
-        }
-
-        [HttpPost("registerprovider")]
-        public async Task<IActionResult> RegisterProvider(MedicineProvider model)
-        {
-            if (!IsValidApiRequest())
-            {
-                return ApiBadRequest("Invalid Headers!");
-            }
-
-            if (!Context.MedicineProvider.Select(x => x.Name).Contains(model.Name))
-            {
-
-            }
-
-            var message = new MessageDTO("Hello World!");
-            return Ok(message);
         }
     }
 }

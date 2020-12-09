@@ -49,8 +49,8 @@ namespace API.Configuration
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             var employee = _context.Employees.FirstOrDefault(a => a.Email == normalizedEmail);
-            _context.Entry(employee).Reference(x => x.Warehouse).Load();
-            _context.Entry(employee).Reference(x => x.Pharmacy).Load();
+            //_context.Entry(employee).Reference(x => x.Warehouse).Load();
+            //_context.Entry(employee).Reference(x => x.Pharmacy).Load();
             return Task.FromResult(employee);
         }
 
