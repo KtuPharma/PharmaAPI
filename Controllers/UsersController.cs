@@ -120,7 +120,7 @@ namespace API.Controllers
             {
                 return ApiBadRequest("Invalid Headers!");
             }
-            Employee user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
+            var user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
             Context.Employees.Update(user);
             await Context.SaveChangesAsync();
@@ -174,7 +174,7 @@ namespace API.Controllers
             {
                 return ApiBadRequest("Invalid Headers!");
             }
-            MedicineProvider provider = Context.MedicineProvider.FirstOrDefault(z => z.Id == id);
+            var provider = Context.MedicineProvider.FirstOrDefault(z => z.Id == id);
             provider.Status = !provider.Status;
             Context.MedicineProvider.Update(provider);
             await Context.SaveChangesAsync();
