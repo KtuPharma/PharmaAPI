@@ -36,7 +36,6 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginDTO model)
         {
             if (!IsValidApiRequest())
@@ -64,7 +63,6 @@ namespace API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("register")]
-        [AllowAnonymous]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
             if (!IsValidApiRequest())
