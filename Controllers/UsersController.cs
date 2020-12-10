@@ -61,7 +61,7 @@ namespace API.Controllers
             return ApiBadRequest("Bad password");
         }
 
-        [Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
@@ -88,7 +88,7 @@ namespace API.Controllers
                     break;
             }
 
-            if (model.RoleId != DepartmentId.Transportation)
+            if (model.RoleId != DepartmentId.Transportation)//perkelti AppUserStore
             {
                 Context.Employees.Add(user);
             }
@@ -112,7 +112,7 @@ namespace API.Controllers
             return Created("", new { token });
         }
 
-        [HttpPost("status/user")]
+        [HttpPost("status/edit")]
         public async Task<IActionResult> UserStatus(StatusDTO model) {
             if (!IsValidApiRequest())
             {
@@ -127,7 +127,7 @@ namespace API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("provider")]
-        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
+        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)//perkelti į kitą kontrolerį
         {
             if (!IsValidApiRequest())
             {
