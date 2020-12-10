@@ -9,10 +9,6 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using API.Models.DTO.Administrator;
-using System.Collections;
-using System.Collections.Generic;
-using API.Models;
 
 namespace API.Controllers
 {
@@ -88,11 +84,6 @@ namespace API.Controllers
                     break;
             }
 
-            if (model.RoleId != DepartmentId.Transportation)//perkelti AppUserStore
-            {
-                Context.Employees.Add(user);
-            }
-
             foreach (var validator in _userManager.PasswordValidators)
             {
                 var res = await validator.ValidateAsync(_userManager, null, model.Password);
@@ -109,9 +100,10 @@ namespace API.Controllers
                 Email = user.Email,
                 roleId = model.RoleId
             });
-            return Created("", new { token });
+            return Ok();
         }
 
+        // [Authorize(Roles = "Admin")]
         [HttpPost("status/edit")]
         public async Task<IActionResult> UserStatus(StatusDTO model) {
             if (!IsValidApiRequest())
@@ -125,60 +117,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("provider")]
-        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)//perkelti į kitą kontrolerį
-        {
-            if (!IsValidApiRequest())
-            {
-                return ApiBadRequest("Invalid Headers!");
-            }
-
-            var provider = new MedicineProvider
-            {
-                Name = model.Name,
-                Country = model.Country,
-                Status = true
-            };
-
-            foreach (var products in model.Products)
-             {
-                Context.ProductBalance.Add(new ProductBalance() 
-                { 
-                   ExpirationDate = products.ExpirationDate,
-                   Price = products.Price,
-                   Medicament = Context.Medicaments.FirstOrDefault(z => z.Id == products.Medicament),
-                   Provider = provider
-                });
-            }
-
-            foreach (var warehouse in model.Warehouse)
-            {
-                Context.ProviderWarehouse.Add(new ProviderWarehouse()
-                {
-                    WarehouseId = warehouse,
-                    Provider = provider
-                });
-            }
-            await Context.SaveChangesAsync();
-            return Ok();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("status/{id}")]
-        public async Task<IActionResult> ProviderStatus(int id)
-        {
-            if (!IsValidApiRequest())
-            {
-                return ApiBadRequest("Invalid Headers!");
-            }
-            var provider = Context.MedicineProvider.FirstOrDefault(z => z.Id == id);
-            provider.Status = !provider.Status;
-            Context.MedicineProvider.Update(provider);
-            await Context.SaveChangesAsync();
-            return Ok();
-        }
-
+        
         [Authorize]
         [HttpGet()]
         public IActionResult GetAllUsers()

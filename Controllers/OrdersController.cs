@@ -19,12 +19,7 @@ namespace API.Controllers
     public class OrdersController : ApiControllerBase
     {
 
-        private readonly UserManager<Employee> _userManager;
-
-        public OrdersController(ApiContext context, UserManager<Employee> userManager) :
-            base(context) {
-            _userManager = userManager; 
-        }
+        public OrdersController(ApiContext context) : base(context) { }
 
         [HttpGet] //return a list of orders without products
         public async Task<ActionResult<IEnumerable<GetOrdersDTO<ProductBalance>>>> GetOrders()

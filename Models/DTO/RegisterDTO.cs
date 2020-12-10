@@ -33,7 +33,7 @@ namespace API.Models.DTO
 
         [Required(ErrorMessage = "Neįvestas slapyvardis!")]
         [JsonProperty("password")]
-        [MinLength(8, ErrorMessage = "Minimalus slaptažodžio ilgis 6 simboliai!")]
+        [MinLength(8, ErrorMessage = "Minimalus slaptažodžio ilgis 8 simboliai!")]
         public string Password { get; set; }
 
         [Required]

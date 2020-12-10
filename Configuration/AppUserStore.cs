@@ -32,7 +32,11 @@ namespace API.Configuration
         public Task<IdentityResult> CreateAsync(Employee user, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
-            _context.Employees.Add(user);
+
+            if (user.Department != DepartmentId.Transportation)//perkelti AppUserStore
+            {
+                _context.Employees.Add(user);
+            }
             _context.SaveChanges();
             return Task.FromResult(IdentityResult.Success);
         }
