@@ -14,7 +14,7 @@ namespace API.Controllers
 
         //[Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)//perkelti į kitą kontrolerį
+        public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
         {
             if (!IsValidApiRequest())
             {

@@ -24,12 +24,17 @@ namespace API.Models.DTO
         public string AddressTo { get; set; }
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)] 
-        public OrderStatusId Status { get; set; }
+        public string Status { get; set; }
 
         [JsonProperty("products", NullValueHandling = NullValueHandling.Ignore)] 
         public ICollection<T> Products { get; set; }
 
-        [JsonProperty("employee")] public string Employee { get; set; }
+        [JsonProperty("employee", NullValueHandling = NullValueHandling.Ignore)]
+        public string Employee { get; set; }
+
+        [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
+        public decimal Price { get; set; }
+
         public OrdersDTO(){}
     }
 }

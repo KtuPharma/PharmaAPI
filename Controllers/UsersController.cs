@@ -66,6 +66,13 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                var res = await validator.ValidateAsync(_userManager, null, model.Password);
+                if (!res.Succeeded)
+                    return ApiBadRequest(res.Errors.First().Description);
+            }
+
             var user = new Employee(model);
 
             switch (model.RoleId)
@@ -77,18 +84,12 @@ namespace API.Controllers
                     user.Warehouse = Context.Warehouse.FirstOrDefault(z => z.Id == model.PharmacyWarehouseOrTruck);
                     break;
                 case DepartmentId.Transportation:
-                    Context.TruckEmployees.Add(new TruckEmployee() {
+                    Context.TruckEmployees.Add(new TruckEmployee()
+                    {
                         Truck = Context.Truck.FirstOrDefault(z => z.Id == model.PharmacyWarehouseOrTruck),
                         Employee = user
                     });
                     break;
-            }
-
-            foreach (var validator in _userManager.PasswordValidators)
-            {
-                var res = await validator.ValidateAsync(_userManager, null, model.Password);
-                if (!res.Succeeded)
-                    return ApiBadRequest(res.Errors.First().Description);
             }
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -116,7 +117,6 @@ namespace API.Controllers
             await Context.SaveChangesAsync();
             return Ok();
         }
-
         
         [Authorize]
         [HttpGet()]
@@ -131,5 +131,6 @@ namespace API.Controllers
         {
             return Ok(HttpContext.User.Identity.Name);
         }
+
     }
 }

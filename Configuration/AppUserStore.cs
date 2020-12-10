@@ -24,6 +24,7 @@ namespace API.Configuration
         {
             DepartmentId departmentId = (DepartmentId)Enum.Parse(typeof(DepartmentId), roleName, true);
             user.Department = departmentId;
+            _context.Employees.Update(user);
             _context.SaveChanges();
 
             return Task.FromResult(IdentityResult.Success);
