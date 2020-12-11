@@ -113,8 +113,7 @@ namespace API.Controllers
             }
             var user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
-            Context.Employees.Update(user);
-            await Context.SaveChangesAsync();
+            await _userManager.UpdateAsync(user);
             return Ok();
         }
         

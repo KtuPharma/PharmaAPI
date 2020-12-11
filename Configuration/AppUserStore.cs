@@ -177,7 +177,9 @@ namespace API.Configuration
 
         public Task<IdentityResult> UpdateAsync(Employee user, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            _context.Employees.Update(user);
+            _context.SaveChanges();
+            return Task.FromResult(IdentityResult.Success);
         }
     }
 }
