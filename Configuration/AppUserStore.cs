@@ -26,7 +26,7 @@ namespace API.Configuration
             user.Department = departmentId;
             _context.Employees.Update(user);
             _context.SaveChanges();
-
+            
             return Task.FromResult(IdentityResult.Success);
         }
 
@@ -49,6 +49,7 @@ namespace API.Configuration
 
         public void Dispose()
         {
+
         }
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
