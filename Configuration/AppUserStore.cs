@@ -33,18 +33,11 @@ namespace API.Configuration
         public Task<IdentityResult> CreateAsync(Employee user, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
-            _context.Employees.Add(new Employee
+
+            if (user.Department != DepartmentId.Transportation)//perkelti AppUserStore
             {
-                Username = user.Username,
-                Email = user.Email,
-                RegisterDate = new System.DateTime(),
-                Password = user.Password,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PersonalCode = user.PersonalCode,
-                Department = user.Department,
-                Status = user.Status
-            });
+                _context.Employees.Add(user);
+            }
             _context.SaveChanges();
             return Task.FromResult(IdentityResult.Success);
         }
@@ -56,14 +49,16 @@ namespace API.Configuration
 
         public void Dispose()
         {
-
         }
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             var employee = _context.Employees.FirstOrDefault(a => a.Email == normalizedEmail);
-            _context.Entry(employee).Reference(x => x.Warehouse).Load();
-            _context.Entry(employee).Reference(x => x.Pharmacy).Load();
+            if (employee != null)
+            {
+                _context.Entry(employee).Reference(x => x.Warehouse).Load();
+                _context.Entry(employee).Reference(x => x.Pharmacy).Load();
+            }
             return Task.FromResult(employee);
         }
 
@@ -182,7 +177,9 @@ namespace API.Configuration
 
         public Task<IdentityResult> UpdateAsync(Employee user, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            _context.Employees.Update(user);
+            _context.SaveChanges();
+            return Task.FromResult(IdentityResult.Success);
         }
     }
 }
