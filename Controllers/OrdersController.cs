@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
@@ -32,6 +33,43 @@ namespace API.Controllers
                 )).ToListAsync();
 
             return Ok(new GetOrdersDTO(orders));
+        }
+
+
+        [Authorize(Roles = "Warehouse")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GetOrdersDTO>> GetOrdersByWarehouse(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var orders = await Context.Order.Where(g => g.Warehouse.Id == id)
+               .Select(o => new OrdersDTO(
+                    o,
+                    Context.ProductBalances
+                        .Where(y => y.Order.Id == o.Id)
+                        .Sum(z => z.Price)
+                )).ToListAsync();
+            return Ok(new GetOrdersDTO(orders));
+        }
+
+        [Authorize(Roles = "Warehouse")]
+        [HttpPost("changeStatus")]
+        public ActionResult<EditOrderDTO> ChangeOrderTransportationStatus(EditOrderDTO model)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var order = Context.Order.Where(x => x.Id == model.OrderID).First();
+
+            order.Status = model.Status;
+            Context.Order.Update(order);
+            Context.SaveChanges();
+            return Ok();
         }
     }
 }
