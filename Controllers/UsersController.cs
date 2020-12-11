@@ -16,18 +16,16 @@ namespace API.Controllers
     [Produces(ApiContentType)]
     public class UsersController : ApiControllerBase
     {
-        private readonly UserManager<Employee> _userManager;
         private readonly JwtService _jwt;
 
         public UsersController(
             ApiContext context,
             IConfiguration config,
             UserManager<Employee> userManager
-            ) :
+        ) :
             base(context, userManager)
         {
             _jwt = new JwtService(config);
-            _userManager = userManager;
         }
 
         [HttpPost("login")]
@@ -43,7 +41,8 @@ namespace API.Controllers
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            if (await UserManager.CheckPasswordAsync(user, model.Password)) {
+            if (await UserManager.CheckPasswordAsync(user, model.Password))
+            {
                 return Ok(new
                 {
                     token = _jwt.GenerateSecurityToken(new JwtUser()
@@ -53,7 +52,7 @@ namespace API.Controllers
                     })
                 });
             }
-            
+
             return ApiBadRequest("Bad password");
         }
 
@@ -66,7 +65,7 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            foreach (var validator in _userManager.PasswordValidators)
+            foreach (var validator in UserManager.PasswordValidators)
             {
                 var res = await validator.ValidateAsync(UserManager, null, model.Password);
                 if (!res.Succeeded)
@@ -92,7 +91,7 @@ namespace API.Controllers
                     break;
             }
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await UserManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
 
@@ -115,7 +114,7 @@ namespace API.Controllers
 
             var user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
-            await _userManager.UpdateAsync(user);
+            await UserManager.UpdateAsync(user);
             return Ok();
         }
 

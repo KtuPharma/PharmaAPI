@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
@@ -12,7 +13,7 @@ namespace API.Controllers
     [ApiController]
     public class OrdersController : ApiControllerBase
     {
-        public OrdersController(ApiContext context) : base(context) { }
+        public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetOrdersDTO>>> GetOrders()
@@ -25,7 +26,7 @@ namespace API.Controllers
             var orders = await Context.Order
                 .Select(o => new OrdersDTO(
                     o,
-                    Context.ProductBalance
+                    Context.ProductBalances
                         .Where(y => y.Order.Id == o.Id)
                         .Sum(z => z.Price)
                 )).ToListAsync();

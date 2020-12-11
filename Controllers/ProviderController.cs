@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using API.Models.DTO.Administrator;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Controllers
 {
@@ -10,7 +11,8 @@ namespace API.Controllers
     [ApiController]
     public class ProviderController : ApiControllerBase
     {
-        public ProviderController(ApiContext context) : base(context) { }
+        public ProviderController(ApiContext context, UserManager<Employee> userManager) :
+            base(context, userManager) { }
 
         //[Authorize(Roles = "Admin")]
         [HttpPost]
@@ -30,7 +32,7 @@ namespace API.Controllers
 
             foreach (var products in model.Products)
             {
-                Context.ProductBalance.Add(new ProductBalance()
+                Context.ProductBalances.Add(new ProductBalance()
                 {
                     ExpirationDate = products.ExpirationDate,
                     Price = products.Price,
@@ -47,6 +49,7 @@ namespace API.Controllers
                     Provider = provider
                 });
             }
+
             await Context.SaveChangesAsync();
             return Ok();
         }
@@ -59,12 +62,12 @@ namespace API.Controllers
             {
                 return ApiBadRequest("Invalid Headers!");
             }
+
             var provider = Context.MedicineProvider.FirstOrDefault(z => z.Id == id);
             provider.Status = !provider.Status;
             Context.MedicineProvider.Update(provider);
             await Context.SaveChangesAsync();
             return Ok();
         }
-
     }
 }

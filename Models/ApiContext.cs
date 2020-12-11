@@ -14,7 +14,7 @@ namespace API.Models
         public DbSet<Truck> Truck { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Order> Order { get; set; }
-        public DbSet<ProductBalance> ProductBalance { get; set; }
+        public DbSet<ProductBalance> ProductBalances { get; set; }
         public DbSet<MedicineProvider> MedicineProvider { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<Pharmacy> Pharmacy { get; set; }
@@ -22,7 +22,7 @@ namespace API.Models
         public DbSet<ProviderWarehouse> ProviderWarehouse { get; set; }
         public DbSet<OrderStatus> OrderStatus { get; set; }
 
-        public ApiContext(DbContextOptions<ApiContext> options) : base(options) {    }
+        public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
