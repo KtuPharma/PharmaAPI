@@ -35,7 +35,7 @@ namespace API.Controllers
             return Ok(new GetOrdersDTO(orders));
         }
 
-        
+
         [Authorize(Roles = "Warehouse")]
         [HttpGet("orders/{id}")]
         public async Task<ActionResult<GetOrdersDTO>> GetOrdersByWarehouse(int id)
@@ -46,8 +46,12 @@ namespace API.Controllers
             }
 
             var orders = await Context.Order.Where(g => g.Warehouse.Id == id)
-              .Select(o => new OrdersDTO(o, 0))
-              .ToListAsync();
+               .Select(o => new OrdersDTO(
+                    o,
+                    Context.ProductBalances
+                        .Where(y => y.Order.Id == o.Id)
+                        .Sum(z => z.Price)
+                )).ToListAsync();
             return Ok(new GetOrdersDTO(orders));
         }
 
