@@ -37,7 +37,7 @@ namespace API.Controllers
 
 
         [Authorize(Roles = "Warehouse")]
-        [HttpGet("orders/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<GetOrdersDTO>> GetOrdersByWarehouse(int id)
         {
             if (!IsValidApiRequest())
@@ -56,7 +56,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Warehouse")]
-        [HttpPost("orders/changeStatus")]
+        [HttpPost("changeStatus")]
         public ActionResult<EditOrderDTO> ChangeOrderTransportationStatus(EditOrderDTO model)
         {
             if (!IsValidApiRequest())
