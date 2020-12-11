@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
@@ -12,43 +13,44 @@ namespace API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class MedicamentsController : ApiControllerBase
+    public class WarehouseController : ApiControllerBase
     {
-        public MedicamentsController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
+        public WarehouseController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
+        [Authorize(Roles = "Warehouse")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetMedicamentsDTO>>> GetMedicaments()
+        public async Task<ActionResult<GetProductBalancesDTO>> GetProductBalances()
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var medicaments = await Context.Medicaments
-                .Select(x => new MedicamentDTO(x))
+            var balances = await Context.ProductBalances
+                .Select(x => new ProductBalanceDTO(x))
                 .ToListAsync();
 
-            return Ok(new GetMedicamentsDTO(medicaments));
+            return Ok(new GetProductBalancesDTO(balances));
         }
 
         [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}")]
-        public async Task<ActionResult<MedicamentDTO>> UpdateMedicament(int id)
+        public async Task<ActionResult<ProductBalanceDTO>> UpdateProductBalance(int id)
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var medicament = await Context.Medicaments
+            var balance = await Context.ProductBalances
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
-            medicament.InSale = !medicament.InSale;
-            Context.Medicaments.Update(medicament);
+            balance.InSale = !balance.InSale;
+            Context.ProductBalances.Update(balance);
             Context.SaveChanges();
 
-            return Ok(new MedicamentDTO(medicament));
+            return Ok(new ProductBalanceDTO(balance));
         }
     }
 }
