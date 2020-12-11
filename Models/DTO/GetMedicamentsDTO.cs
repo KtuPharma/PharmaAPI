@@ -14,4 +14,6 @@ namespace API.Models.DTO
             Data = medicaments;
         }
     }
+
+    
 }

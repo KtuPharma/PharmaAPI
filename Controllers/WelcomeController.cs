@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Models.DTO;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -8,7 +9,7 @@ namespace API.Controllers
     [ApiController]
     public class WelcomeController : ApiControllerBase
     {
-        public WelcomeController(ApiContext context) : base(context) { }
+        public WelcomeController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
         [HttpGet]
         public ActionResult<string> GetQuizMessage()
