@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using API.Models.DTO;
-
 
 namespace API.Models
 {
@@ -64,21 +62,5 @@ namespace API.Models
         public Pharmacy Pharmacy { get; set; }
 
         public Warehouse Warehouse { get; set; }
-
-        public Employee(){}
-
-        public Employee(RegisterDTO e)
-        {
-                PersonalCode = e.PersonalCode;
-                FirstName = e.FirstName;
-                LastName = e.LastName;
-                Username = e.Username;
-                Email = e.Email;
-                Password = e.Password;
-                Department = e.RoleId;
-                BirthDate = e.BirthDate;
-                Status = EmployeeStatusId.Employed;
-                RegisterDate = DateTime.Now;
-        }
     }
 }

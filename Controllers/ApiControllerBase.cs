@@ -1,10 +1,7 @@
 ﻿using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using API.Models.DTO;
-using Microsoft.AspNetCore.Identity;
 
 namespace API.Controllers
 {
@@ -14,19 +11,10 @@ namespace API.Controllers
         protected const string ApiContentType = "application/json";
 
         protected ApiContext Context { get; }
-        protected readonly UserManager<Employee> UserManager;
 
-        public ApiControllerBase(ApiContext context, UserManager<Employee> userManager)
+        public ApiControllerBase(ApiContext context)
         {
             Context = context;
-            UserManager = userManager;
-        }
-
-        protected async Task<Employee> GetCurrentUser()
-        {
-            string email = User.FindFirst(ClaimTypes.Email).Value;
-            var user = await UserManager.FindByEmailAsync(email);
-            return user;
         }
 
         protected bool IsValidApiRequest()
@@ -80,17 +68,6 @@ namespace API.Controllers
                 Details = details
             };
             return StatusCode(501, error);
-        }
-
-        protected ObjectResult NotAllowedError(string message, string details = null)
-        {
-            var error = new ErrorDTO
-            {
-                Type = 405,
-                Title = message,
-                Details = details
-            };
-            return StatusCode(405, error);
         }
     }
 }

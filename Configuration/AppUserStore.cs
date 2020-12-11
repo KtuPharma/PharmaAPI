@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,34 +12,39 @@ namespace API.Configuration
 {
     public class AppUserStore : IUserStore<Employee>, IUserPasswordStore<Employee>, IUserEmailStore<Employee>, IUserRoleStore<Employee>
     {
-        private readonly ApiContext _context;
-        private readonly ILogger _logger;
+        private readonly ApiContext context;
+        private readonly ILogger logger;
 
-        public AppUserStore(ApiContext context, ILogger<AppUserStore> logger)
-        {
-            _context = context;
-            _logger = logger;
+        public AppUserStore(ApiContext context, ILogger<AppUserStore> logger) {
+            this.context = context;
+            this.logger = logger;
         }
 
         public Task AddToRoleAsync(Employee user, string roleName, CancellationToken cancellationToken)
         {
             DepartmentId departmentId = (DepartmentId)Enum.Parse(typeof(DepartmentId), roleName, true);
             user.Department = departmentId;
-            _context.Employees.Update(user);
-            _context.SaveChanges();
+            context.Employees.Update(user);
+            context.SaveChanges();
             
             return Task.FromResult(IdentityResult.Success);
         }
 
         public Task<IdentityResult> CreateAsync(Employee user, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
-
-            if (user.Department != DepartmentId.Transportation)//perkelti AppUserStore
-            {
-                _context.Employees.Add(user);
-            }
-            _context.SaveChanges();
+            logger.LogInformation("Create user called: {}, {}", user.Username, user.Email);
+            context.Employees.Add(new Employee{
+                Username = user.Username,
+                Email = user.Email,
+                RegisterDate = new System.DateTime(), /// CIA
+                Password = user.Password,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PersonalCode = user.PersonalCode,
+                Department = user.Department,
+                Status = user.Status
+            });
+            context.SaveChanges();
             return Task.FromResult(IdentityResult.Success);
         }
 
@@ -54,24 +60,18 @@ namespace API.Configuration
 
         public Task<Employee> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            var employee = _context.Employees.FirstOrDefault(a => a.Email == normalizedEmail);
-            if (employee != null)
-            {
-                _context.Entry(employee).Reference(x => x.Warehouse).Load();
-                _context.Entry(employee).Reference(x => x.Pharmacy).Load();
-            }
-            return Task.FromResult(employee);
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Email == normalizedEmail));
         }
 
         public Task<Employee> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_context.Employees.FirstOrDefault(a => a.Id.ToString() == userId));
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Id.ToString() == userId));
         }
 
         public Task<Employee> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("FindByNameAsync: {0} -> {}", normalizedUserName, _context.Employees.ToList());
-            return Task.FromResult(_context.Employees.FirstOrDefault(a => a.Username == normalizedUserName));
+            logger.LogWarning("FindByNameAsync: {0} -> {}", normalizedUserName, context.Employees.ToList());
+            return Task.FromResult(context.Employees.FirstOrDefault(a => a.Username == normalizedUserName));
         }
 
         public Task<string> GetEmailAsync(Employee user, CancellationToken cancellationToken)
@@ -101,7 +101,7 @@ namespace API.Configuration
 
         public Task<IList<string>> GetRolesAsync(Employee user, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("They asked me for roles: {} => {}", user.Username, user.Department.ToString());
+            logger.LogWarning("They asked me for roles: {} => {}", user.Username, user.Department.ToString());
             IList<string> roles = new List<string>() { user.Department.ToString() };
             return Task.FromResult(roles);
         }
@@ -118,8 +118,8 @@ namespace API.Configuration
 
         public Task<IList<Employee>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("I got question who belongs to role: {}", roleName);
-            IList<Employee> list = _context.Employees.Where(x => x.Department.ToString() == roleName).ToList();
+            logger.LogInformation("I got question who belongs to role: {}", roleName);
+            IList<Employee> list = context.Employees.Where(x => x.Department.ToString() == roleName).ToList();
             return Task.FromResult(list);
         }
 
@@ -130,15 +130,15 @@ namespace API.Configuration
 
         public Task<bool> IsInRoleAsync(Employee user, string roleName, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("they asked if user: {} belongs to {} ==> {}", user.Username, roleName, user.Department.ToString() == roleName);
+            logger.LogWarning("they asked if user: {} belongs to {} ==> {}", user.Username, roleName, user.Department.ToString() == roleName);
             return Task.FromResult(user.Department.ToString() == roleName);
         }
 
         public Task RemoveFromRoleAsync(Employee user, string roleName, CancellationToken cancellationToken)
         {
             user.Department = DepartmentId.None;
-            _context.Employees.Update(user);
-            _context.SaveChanges();
+            context.Employees.Update(user);
+            context.SaveChanges();
 
             return Task.FromResult(IdentityResult.Success);
         }
@@ -178,9 +178,7 @@ namespace API.Configuration
 
         public Task<IdentityResult> UpdateAsync(Employee user, CancellationToken cancellationToken)
         {
-            _context.Employees.Update(user);
-            _context.SaveChanges();
-            return Task.FromResult(IdentityResult.Success);
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -3,7 +3,7 @@
     public enum DepartmentId
     {
         None = 0,
-        Pharmacy,
+        Pharmacy = 1,
         Warehouse,
         Transportation,
         Admin

@@ -28,6 +28,7 @@ namespace API.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Email, jwtUser.Email),
+                    new Claim(ClaimTypes.Name, jwtUser.Username),
                     new Claim(ClaimTypes.Role, jwtUser.roleId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(_expirationDays),

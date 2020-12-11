@@ -1,5 +1,4 @@
-﻿using API.Models.DTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

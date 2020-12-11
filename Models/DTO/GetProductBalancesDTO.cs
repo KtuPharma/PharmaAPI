@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Models.DTO
 {
     public class GetProductBalancesDTO
     {
         [JsonProperty("meta")] public Meta Meta { get; set; }
-        [JsonProperty("data")] public ICollection<ProductBalanceDTO> Data { get; set; }
+        [JsonProperty("data")] public IEnumerable<ProductBalanceDTO> Data { get; set; }
 
-        public GetProductBalancesDTO(ICollection<ProductBalanceDTO> data = null)
+        public GetProductBalancesDTO(IEnumerable<ProductBalanceDTO> medicaments)
         {
             Meta = new Meta();
-            Data = data;
+            Data = medicaments;
         }
     }
 }
