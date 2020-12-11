@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 
 namespace API.Models.DTO
 {
-    public class GetOrdersDTO<T>
+    public class GetOrdersDTO
     {
         [JsonProperty("meta")] public Meta Meta { get; set; }
-        [JsonProperty("data")] public IEnumerable<OrdersDTO<T>> Data { get; set; }
+        [JsonProperty("data")] public IEnumerable<OrdersDTO> Data { get; set; }
 
-        public GetOrdersDTO(IEnumerable<OrdersDTO<T>> orders)
+        public GetOrdersDTO(IEnumerable<OrdersDTO> orders)
         {
             Meta = new Meta();
             Data = orders;

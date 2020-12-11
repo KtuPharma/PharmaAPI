@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,7 +23,7 @@ namespace API.Controllers
             ApiContext context,
             IConfiguration config,
             UserManager<Employee> userManager
-            ) :
+        ) :
             base(context)
         {
             _jwt = new JwtService(config);
@@ -43,7 +42,8 @@ namespace API.Controllers
             if (user == null)
                 return ApiBadRequest("User does not exist.");
 
-            if (await _userManager.CheckPasswordAsync(user, model.Password)) {
+            if (await _userManager.CheckPasswordAsync(user, model.Password))
+            {
                 return Ok(new
                 {
                     token = _jwt.GenerateSecurityToken(new JwtUser()
@@ -53,11 +53,11 @@ namespace API.Controllers
                     })
                 });
             }
-            
+
             return ApiBadRequest("Bad password");
         }
 
-       // [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
@@ -95,28 +95,30 @@ namespace API.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
                 return ApiBadRequest(result.Errors.First().Description);
-                        
+
             string token = _jwt.GenerateSecurityToken(new JwtUser
             {
                 Email = user.Email,
                 roleId = model.RoleId
             });
-            return Ok();
+            return StatusCode(201);
         }
 
         // [Authorize(Roles = "Admin")]
         [HttpPost("status/edit")]
-        public async Task<IActionResult> UserStatus(StatusDTO model) {
+        public async Task<IActionResult> UserStatus(StatusDTO model)
+        {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
+
             var user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
             await _userManager.UpdateAsync(user);
             return Ok();
         }
-        
+
         [Authorize]
         [HttpGet()]
         public IActionResult GetAllUsers()
@@ -130,6 +132,5 @@ namespace API.Controllers
         {
             return Ok(HttpContext.User.Identity.Name);
         }
-
     }
 }
