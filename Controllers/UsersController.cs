@@ -120,13 +120,6 @@ namespace API.Controllers
             return Ok();
         }
 
-        [Authorize]
-        [HttpGet("all")]
-        public IActionResult GetAllUsers()
-        {
-            return Ok(Context.Employees.ToList());
-        }
-
         // [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<UsersDTO>>>> GetUsers()
