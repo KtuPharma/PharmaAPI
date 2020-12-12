@@ -17,7 +17,7 @@ namespace API.Controllers
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetOrdersDTO>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
             if (!IsValidApiRequest())
             {
@@ -32,13 +32,13 @@ namespace API.Controllers
                         .Sum(z => z.Price)
                 )).ToListAsync();
 
-            return Ok(new GetOrdersDTO(orders));
+            return Ok(new GetDataDTO<OrdersDTO>(orders));
         }
 
 
         [Authorize(Roles = "Warehouse")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetOrdersDTO>> GetOrdersByWarehouse(int id)
+        public async Task<ActionResult<GetDataDTO<OrdersDTO>>> GetOrdersByWarehouse(int id)
         {
             if (!IsValidApiRequest())
             {
@@ -52,7 +52,7 @@ namespace API.Controllers
                         .Where(y => y.Order.Id == o.Id)
                         .Sum(z => z.Price)
                 )).ToListAsync();
-            return Ok(new GetOrdersDTO(orders));
+            return Ok(new GetDataDTO<OrdersDTO>(orders));
         }
 
         [Authorize(Roles = "Warehouse")]
