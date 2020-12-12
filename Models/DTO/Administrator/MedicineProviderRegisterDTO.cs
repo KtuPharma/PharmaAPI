@@ -17,7 +17,7 @@ namespace API.Models.DTO.Administrator
         [JsonProperty("country")]
         public string Country { get; set; }
 
-        [JsonProperty("products")]
+        [JsonProperty("products", NullValueHandling = NullValueHandling.Ignore)]
         public IList<ProductBalanceRegisterDTO> Products { get; set; }
 
         //a list of wherehouses that have access to order diferrent products

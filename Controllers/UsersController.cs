@@ -124,16 +124,21 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<UsersDTO>>>> GetUsers()
         {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
             var users = await Context.Employees.Select(o => new UsersDTO(o,
                 o.Pharmacy != null ? o.Pharmacy.Address : o.Warehouse != null 
                 ? o.Warehouse.Address : o.Department == DepartmentId.Transportation 
-                ? o.Department.ToString() : DepartmentId.None.ToString()
-                )).ToListAsync();
+                ? o.Department.ToString() : DepartmentId.None.ToString()))
+                .ToListAsync();
 
             return Ok(new GetDataDTO<UsersDTO>(users));
         }
 
-            [Authorize(Roles = "Pharmacy")]
+        [Authorize(Roles = "Pharmacy")]
         [HttpGet("RoleTest")]
         public IActionResult RoleTest1()
         {
