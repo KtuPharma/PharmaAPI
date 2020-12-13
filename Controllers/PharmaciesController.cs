@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using API.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -18,8 +19,9 @@ namespace API.Controllers
         public PharmaciesController(ApiContext context, UserManager<Employee> userManager) :
         base(context, userManager){ }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<PharmacyDTO>>>> GetProviders()
+        public async Task<ActionResult<IEnumerable<GetDataDTO<PharmacyDTO>>>> GetPharmacies()
         {
             if (!IsValidApiRequest())
             {

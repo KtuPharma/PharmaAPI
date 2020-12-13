@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using API.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -17,7 +18,7 @@ namespace API.Controllers
         public ProvidersController(ApiContext context, UserManager<Employee> userManager) :
             base(context, userManager) { }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
         {
@@ -57,7 +58,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}")]
         public async Task<IActionResult> ProviderStatus(int id)
         {
@@ -73,7 +74,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<MedicineProviderDTO>>>> GetProviders()
         {
