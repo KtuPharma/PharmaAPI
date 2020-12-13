@@ -4,17 +4,21 @@ using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using API.Models.DTO.Administrator;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using API.Models.DTO;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class ProviderController : ApiControllerBase
+    public class ProvidersController : ApiControllerBase
     {
-        public ProviderController(ApiContext context, UserManager<Employee> userManager) :
+        public ProvidersController(ApiContext context, UserManager<Employee> userManager) :
             base(context, userManager) { }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddProvider(MedicineProviderRegisterDTO model)
         {
@@ -54,7 +58,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}")]
         public async Task<IActionResult> ProviderStatus(int id)
         {
@@ -68,6 +72,22 @@ namespace API.Controllers
             Context.MedicineProvider.Update(provider);
             await Context.SaveChangesAsync();
             return Ok();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<MedicineProviderDTO>>>> GetProviders()
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var provider = await Context.MedicineProvider
+                .Where(m => m.Status)
+                .Select(z => new MedicineProviderDTO(z))
+                .ToListAsync();
+            return Ok(new GetDataDTO<MedicineProviderDTO>(provider));
         }
     }
 }

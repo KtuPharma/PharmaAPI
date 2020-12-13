@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -56,7 +58,7 @@ namespace API.Controllers
             return ApiBadRequest("Bad password");
         }
 
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Signup(RegisterDTO model)
         {
@@ -103,7 +105,7 @@ namespace API.Controllers
             return StatusCode(201);
         }
 
-        // [Authorize(Roles = "Admin")]
+         [Authorize(Roles = "Admin")]
         [HttpPost("status/edit")]
         public async Task<IActionResult> UserStatus(StatusDTO model)
         {
@@ -118,11 +120,22 @@ namespace API.Controllers
             return Ok();
         }
 
-        [Authorize]
-        [HttpGet()]
-        public IActionResult GetAllUsers()
+         [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<UsersDTO>>>> GetUsers()
         {
-            return Ok(Context.Employees.ToList());
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var users = await Context.Employees.Select(o => new UsersDTO(o,
+                o.Pharmacy != null ? o.Pharmacy.Address : o.Warehouse != null 
+                ? o.Warehouse.Address : o.Department == DepartmentId.Transportation 
+                ? o.Department.ToString() : DepartmentId.None.ToString()))
+                .ToListAsync();
+
+            return Ok(new GetDataDTO<UsersDTO>(users));
         }
 
         [Authorize(Roles = "Pharmacy")]

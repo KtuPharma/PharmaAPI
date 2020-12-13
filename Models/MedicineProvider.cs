@@ -23,5 +23,7 @@ namespace API.Models
         public ICollection<ProductBalance> Products { get; set; }
 
         public ICollection<ProviderWarehouse> ProviderWarehouses { get; set; }
+
+        public MedicineProvider(){}
     }
 }
