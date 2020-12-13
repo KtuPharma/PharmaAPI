@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System;
 
 namespace API.Controllers
 {
@@ -37,13 +39,17 @@ namespace API.Controllers
 
 
         [Authorize(Roles = "Warehouse")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GetDataDTO<OrdersDTO>>> GetOrdersByWarehouse(int id)
+        [HttpGet("byID")]
+        public async Task<ActionResult<GetDataDTO<OrdersDTO>>> GetOrdersByWarehouse()
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
+
+            string email = User.FindFirst(ClaimTypes.Email).Value;
+            var user = await UserManager.FindByEmailAsync(email);
+            int id = user.Warehouse.Id;
 
             var orders = await Context.Order.Where(g => g.Warehouse.Id == id)
                .Select(o => new OrdersDTO(

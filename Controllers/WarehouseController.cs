@@ -27,8 +27,10 @@ namespace API.Controllers
             }
 
             var balances = await Context.ProductBalances
-                .Select(x => new ProductBalanceDTO(x))
-                .ToListAsync();
+                .Select(o => new ProductBalanceDTO(
+                    o,
+                    Context.Medicaments.FirstOrDefault(x => x.Id == o.Medicament.Id).Name
+                )).ToListAsync();
 
             return Ok(new GetProductBalancesDTO(balances));
         }
