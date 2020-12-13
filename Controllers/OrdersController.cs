@@ -18,6 +18,7 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
@@ -47,8 +48,7 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            string email = User.FindFirst(ClaimTypes.Email).Value;
-            var user = await UserManager.FindByEmailAsync(email);
+            var user = await GetCurrentUser();
             int id = user.Warehouse.Id;
 
             var orders = await Context.Order.Where(g => g.Warehouse.Id == id)
