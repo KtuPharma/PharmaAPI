@@ -17,7 +17,7 @@ namespace API.Controllers
     {
         public WarehouseController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [Authorize(Roles = "Warehouse")]
+       // [Authorize(Roles = "Warehouse")]
         [HttpGet]
         public async Task<ActionResult<GetProductBalancesDTO>> GetProductBalances()
         {
