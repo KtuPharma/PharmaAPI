@@ -17,6 +17,7 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
@@ -91,7 +92,7 @@ namespace API.Controllers
                             Id = t.Id,
                             Sum = t.Sum,
                             Date = t.Date,
-                            Method = t.Method,
+                            Method = t.Method.ToString(),
                             Employee = Context.Employees.FirstOrDefault(e => e.Id == t.Pharmacist.Id).PersonalCode
                         }).FirstOrDefault(t => t.Id == p.Transaction.Id),
                         Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name

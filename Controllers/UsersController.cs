@@ -105,7 +105,7 @@ namespace API.Controllers
             return StatusCode(201);
         }
 
-         [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("status/edit")]
         public async Task<IActionResult> UserStatus(StatusDTO model)
         {
@@ -116,6 +116,10 @@ namespace API.Controllers
 
             var user = Context.Employees.FirstOrDefault(z => z.Id == model.Id);
             user.Status = model.Status;
+            if (model.Status == EmployeeStatusId.Fired)
+            {
+                user.Department = DepartmentId.None;
+            }
             await UserManager.UpdateAsync(user);
             return Ok();
         }

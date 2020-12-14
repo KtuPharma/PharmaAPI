@@ -11,7 +11,7 @@ namespace API.Models.DTO.Administrator
 
             public DateTime Date { get; set; }
 
-            public TransactionMethodId Method { get; set; }
+            public string Method { get; set; }
 
             public string Employee { get; set; }
     }
