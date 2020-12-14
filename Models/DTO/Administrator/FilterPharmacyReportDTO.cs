@@ -7,8 +7,8 @@ namespace API.Models.DTO.Administrator
     public class FilterPharmacyReportDTO
     {
         [Required]
-        [JsonProperty("id")]
-        public int Id { get; set; }
+        [JsonProperty("pharmacyid")]
+        public int PharmacyId { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]

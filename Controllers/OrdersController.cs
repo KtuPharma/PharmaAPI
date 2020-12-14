@@ -88,17 +88,40 @@ namespace API.Controllers
                         ExpirationDate = p.ExpirationDate,
                         Price = p.Price,
                         Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
-                        Transaction = Context.Transaction.Select(t => new TransactionInterDTO() { 
-                            Id = t.Id,
-                            Sum = t.Sum,
-                            Date = t.Date,
-                            Method = t.Method.ToString(),
-                            Employee = Context.Employees.FirstOrDefault(e => e.Id == t.Pharmacist.Id).PersonalCode
-                        }).FirstOrDefault(t => t.Id == p.Transaction.Id),
                         Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
             }).ToListAsync();
 
             return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}/order")]
+        public async Task<ActionResult<GetDataTDTO<OrderInterDTO>>> GetFullOrderById(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var order =  (Context.Order.Select(o => new OrdersDTO(
+                                                o, Context.ProductBalances
+                                                .Where(y => y.Order.Id == id)
+                                                .Sum(z => z.Price))).ToList())
+                                                .First(r => r.Id == id);
+
+
+            var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
+                .Select(p => new ProductBalanceInterDTO()
+                {
+                    ExpirationDate = p.ExpirationDate,
+                    Price = p.Price,
+                    Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                    Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+                }).ToListAsync();
+
+            var orderData = new OrderInterDTO(order, products);
+
+            return Ok(new GetDataTDTO<OrderInterDTO>(orderData));
         }
 
     }

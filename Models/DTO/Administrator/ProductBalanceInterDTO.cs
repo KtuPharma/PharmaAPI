@@ -15,8 +15,6 @@ namespace API.Models.DTO
 
             public string Medicament { get; set; }
 
-            public TransactionInterDTO Transaction { get; set; }
-
             public string Provider { get; set; }
     }
 }

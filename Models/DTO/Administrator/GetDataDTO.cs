@@ -8,10 +8,10 @@ namespace API.Models.DTO
         [JsonProperty("meta")] public Meta Meta { get; set; }
         [JsonProperty("data")] public IEnumerable<T> Data { get; set; }
 
-        public GetDataDTO(IEnumerable<T> orders)
+        public GetDataDTO(IEnumerable<T> data)
         {
             Meta = new Meta();
-            Data = orders;
+            Data = data;
         }
     }
 }
