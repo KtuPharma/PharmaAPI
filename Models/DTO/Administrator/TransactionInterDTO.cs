@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+using API.Models;
 
 namespace API.Models.DTO.Administrator
 {
@@ -16,7 +13,6 @@ namespace API.Models.DTO.Administrator
 
             public TransactionMethodId Method { get; set; }
 
-            [Required]
             public string Employee { get; set; }
     }
 }

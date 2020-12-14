@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using API.Models.DTO.Administrator;
 
 namespace API.Controllers
 {
@@ -71,5 +72,33 @@ namespace API.Controllers
             Context.SaveChanges();
             return Ok();
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("products/{id}")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> GetOrderProductsByOrder(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
+                .Select(p => new ProductBalanceInterDTO() {
+                        ExpirationDate = p.ExpirationDate,
+                        Price = p.Price,
+                        Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                        Transaction = Context.Transaction.Select(t => new TransactionInterDTO() { 
+                            Id = t.Id,
+                            Sum = t.Sum,
+                            Date = t.Date,
+                            Method = t.Method,
+                            Employee = Context.Employees.FirstOrDefault(e => e.Id == t.Pharmacist.Id).PersonalCode
+                        }).FirstOrDefault(t => t.Id == p.Transaction.Id),
+                        Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+            }).ToListAsync();
+
+            return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
+        }
+
     }
 }
