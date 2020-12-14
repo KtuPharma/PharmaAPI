@@ -141,12 +141,5 @@ namespace API.Controllers
 
             return Ok(new GetDataDTO<UsersDTO>(users));
         }
-
-        [Authorize(Roles = "Pharmacy")]
-        [HttpGet("RoleTest")]
-        public IActionResult RoleTest1()
-        {
-            return Ok(HttpContext.User.Identity.Name);
-        }
     }
 }
