@@ -26,7 +26,10 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var balances = await Context.ProductBalances
+            var user = await GetCurrentUser();
+            int id = user.Warehouse.Id;
+
+            var balances = await Context.ProductBalances.Where(g => g.Warehouse.Id == id)
                 .Select(o => new ProductBalanceDTO(
                     o,
                     Context.Medicaments.FirstOrDefault(x => x.Id == o.Medicament.Id).Name
