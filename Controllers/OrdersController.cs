@@ -75,7 +75,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("products/{id}")]
+        [HttpGet("{id}/products")]
         public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> GetOrderProductsByOrder(int id)
         {
             if (!IsValidApiRequest())
