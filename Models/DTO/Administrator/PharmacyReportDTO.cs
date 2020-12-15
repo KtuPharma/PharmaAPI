@@ -6,7 +6,7 @@ namespace API.Models.DTO.Administrator
 {
     public class PharmacyReportDTO
     {
-        [JsonProperty("allamount")]
+        [JsonProperty("allAmount")]
         public decimal AllAmount { get; set; }
 
         public IEnumerable<ReportDTO> Pharmacy { get; set; }

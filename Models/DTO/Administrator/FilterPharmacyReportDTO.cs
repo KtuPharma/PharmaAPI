@@ -7,19 +7,19 @@ namespace API.Models.DTO.Administrator
     public class FilterPharmacyReportDTO
     {
         [Required]
-        [JsonProperty("pharmacyid")]
+        [JsonProperty("pharmacyId")]
         public int PharmacyId { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [JsonProperty("datefrom")]
+        [JsonProperty("dateFrom")]
         public DateTime DateFrom { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [JsonProperty("dateto")]
+        [JsonProperty("dateTo")]
         public DateTime DateTo { get; set; }
     }
 }

@@ -5,19 +5,19 @@ namespace API.Models.DTO.Administrator
 {
     public class PharmaciesReportDTO
     {
-        [JsonProperty("pharmaciesamount")]
+        [JsonProperty("pharmaciesAmount")]
         public decimal PharmaciesAmount { get; set; }
 
-        [JsonProperty("toppharmacy ")]
+        [JsonProperty("topPharmacy ")]
         public string TopPharmacy { get; set; }
 
-        [JsonProperty("biggestamount")]
+        [JsonProperty("biggestAmount")]
         public decimal BiggestAmount { get; set; }
 
-        [JsonProperty("pharmaciescounter")]
+        [JsonProperty("pharmaciesCounter")]
         public int PharmaciesCounter { get; set; }
 
-        [JsonProperty("profitbypharmacy")]
+        [JsonProperty("profitbyPharmacy")]
         public List<PharmacyProfitDTO> ProfitByPharmacy { get; set; }
 
         public PharmaciesReportDTO() {}
