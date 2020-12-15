@@ -40,7 +40,7 @@ namespace API.Controllers
                             )).ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
-                    orders = await Context.Order.Where(g => g.Warehouse.Id == id)
+                    orders = await Context.Order.Where(g => g.Warehouse.Id == user.Warehouse.Id)
                         .Select(o => new OrdersDTO(
                             o,
                             Context.ProductBalances
