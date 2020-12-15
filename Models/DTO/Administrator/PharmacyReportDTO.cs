@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace API.Models.DTO.Administrator
@@ -12,7 +13,7 @@ namespace API.Models.DTO.Administrator
 
         public PharmacyReportDTO(IEnumerable<ReportDTO> r)
         {
-            AllAmount = 0;
+            AllAmount = r.Sum(s => s.OrderAmount);
             Pharmacy = r;
         }
     }
