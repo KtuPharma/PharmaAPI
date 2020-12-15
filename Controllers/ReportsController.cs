@@ -20,7 +20,7 @@ namespace API.Controllers
         public ReportsController(ApiContext context, UserManager<Employee> userManager) :
         base(context, userManager){ }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("report")]
         public async Task<ActionResult<IEnumerable<GetDataDTO<PharmacyReportDTO>>>> GetPharmacyReport(FilterPharmacyReportDTO model)
         {
