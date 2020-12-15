@@ -59,5 +59,25 @@ namespace API.Controllers
 
             return productList;
         }
+
+        [Authorize(Roles = "Warehouse")]
+        [HttpPost("{id}")]
+        public async Task<ActionResult<ProductBalanceDTO>> UpdateProductBalance(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var balance = await Context.ProductBalances
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            balance.InSale = !balance.InSale;
+            Context.ProductBalances.Update(balance);
+            Context.SaveChanges();
+
+            return Ok(new ProductBalanceDTO(balance));
+        }
     }
 }
