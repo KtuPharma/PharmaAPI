@@ -13,5 +13,13 @@
     {
         public DepartmentId Id { get; set; }
         public string Name { get; set; }
+
+        public Department() { }
+
+        public Department(Department d)
+        {
+            Id = d.Id;
+            Name = d.Name;
+        }
     }
 }

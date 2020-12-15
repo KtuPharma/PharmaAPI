@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API.Models.DTO.Administrator;
 
 namespace API.Controllers
 {
@@ -49,6 +50,22 @@ namespace API.Controllers
             Context.SaveChanges();
 
             return Ok(new MedicamentDTO(medicament));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("Names")]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<MedicamentsNameDTO>>>> GetMedicamentsNames()
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var medicaments = await Context.Medicaments
+                .Select(z => new MedicamentsNameDTO(z.Id, z.Name))
+                .ToListAsync();
+
+            return Ok(new GetDataDTO<MedicamentsNameDTO>(medicaments));
         }
     }
 }

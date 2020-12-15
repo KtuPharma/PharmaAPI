@@ -27,10 +27,25 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var provider = await Context.EmployeeStatus
+            var status = await Context.EmployeeStatus
                 .Select(e => new EmployeeStatus(e))
                 .ToListAsync();
-            return Ok(new GetDataDTO<EmployeeStatus>(provider));
+            return Ok(new GetDataDTO<EmployeeStatus>(status));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("role")]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<Department>>>> GetRole()
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var role = await Context.Department
+                .Select(r => new Department(r))
+                .ToListAsync();
+            return Ok(new GetDataDTO<Department>(role));
         }
     }
 }

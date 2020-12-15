@@ -35,5 +35,20 @@ namespace API.Controllers
                 .ToListAsync();
             return Ok(new GetDataDTO<PharmacyDTO>(pharmacies));
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("Addresses")]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<WorplaceDTO>>>> GetPharmaciesAddresses()
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var pharmacies = await Context.Pharmacy
+                .Select(z => new WorplaceDTO(z.Id, z.Address))
+                .ToListAsync();
+            return Ok(new GetDataDTO<WorplaceDTO>(pharmacies));
+        }
     }
 }
