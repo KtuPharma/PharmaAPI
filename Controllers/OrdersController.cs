@@ -16,42 +16,41 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
-        {
-            if (!IsValidApiRequest())
-            {
-                return ApiBadRequest("Invalid Headers!");
-            }
-
-            var orders = await Context.Order
-                .Select(o => new OrdersDTO(
-                    o,
-                    Context.ProductBalances
-                        .Where(y => y.Order.Id == o.Id)
-                        .Sum(z => z.Price)
-                )).ToListAsync();
-
-            return Ok(new GetDataDTO<OrdersDTO>(orders));
-        }
-
-
-        [Authorize(Roles = "Warehouse")]
+        [Authorize(Roles = "Admin,Warehouse")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetDataDTO<OrdersDTO>>> GetOrdersByWarehouse(int id)
+        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders(int id)
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var orders = await Context.Order.Where(g => g.Warehouse.Id == id)
-               .Select(o => new OrdersDTO(
-                    o,
-                    Context.ProductBalances
-                        .Where(y => y.Order.Id == o.Id)
-                        .Sum(z => z.Price)
-                )).ToListAsync();
+            var user = await GetCurrentUser();
+            List<OrdersDTO> orders;
+            switch (user.Department)
+            {
+                case DepartmentId.Admin:
+                    orders = await Context.Order
+                        .Select(o => new OrdersDTO(
+                            o,
+                            Context.ProductBalances
+                            .Where(y => y.Order.Id == o.Id)
+                            .Sum(z => z.Price)
+                            )).ToListAsync();
+                    break;
+                case DepartmentId.Warehouse:
+                    orders = await Context.Order.Where(g => g.Warehouse.Id == id)
+                        .Select(o => new OrdersDTO(
+                            o,
+                            Context.ProductBalances
+                            .Where(y => y.Order.Id == o.Id)
+                            .Sum(z => z.Price)
+                            )).ToListAsync();
+                    break;
+                default:
+                    return NotAllowedError("This action is not allowed!");
+            }
+
             return Ok(new GetDataDTO<OrdersDTO>(orders));
         }
 
