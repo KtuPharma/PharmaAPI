@@ -18,7 +18,7 @@ namespace API.Controllers
         public StatusController(ApiContext context, UserManager<Employee> userManager) :
         base(context, userManager){ }
 
-       // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<EmployeeStatus>>>> GetProviderStatus()
         {
