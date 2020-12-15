@@ -9,7 +9,7 @@ namespace API.Models.DTO.Administrator
     {
 
         [Required]
-        [JsonProperty("expirationdate")]
+        [JsonProperty("expirationDate")]
         public DateTime ExpirationDate { get; set; }
 
         [Required]
