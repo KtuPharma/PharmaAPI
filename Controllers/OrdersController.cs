@@ -94,7 +94,7 @@ namespace API.Controllers
             return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Pharmacy, Warehouse, Transportation, Admin")]
         [HttpGet("{id}/order")]
         public async Task<ActionResult<GetDataTDTO<OrderInterDTO>>> GetFullOrderById(int id)
         {
