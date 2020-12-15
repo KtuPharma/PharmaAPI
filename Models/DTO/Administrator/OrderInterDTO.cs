@@ -7,7 +7,7 @@ namespace API.Models.DTO.Administrator
     {
         public OrdersDTO Order { get; set; }
 
-        [JsonProperty("productbalances")]
+        [JsonProperty("productBalances")]
         public IEnumerable<ProductBalanceInterDTO> ProductBalances { get; set; }
 
         public OrderInterDTO(OrdersDTO order, IEnumerable<ProductBalanceInterDTO> productBalances)

@@ -17,7 +17,7 @@ namespace API.Models.DTO.Administrator
         [JsonProperty("pharmaciesCounter")]
         public int PharmaciesCounter { get; set; }
 
-        [JsonProperty("profitbyPharmacy")]
+        [JsonProperty("profitByPharmacy")]
         public List<PharmacyProfitDTO> ProfitByPharmacy { get; set; }
 
         public PharmaciesReportDTO() {}
