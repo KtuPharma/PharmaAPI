@@ -22,6 +22,7 @@ namespace API.Models
         public DbSet<ProviderWarehouse> ProviderWarehouse { get; set; }
         public DbSet<OrderStatus> OrderStatus { get; set; }
         public DbSet<EmployeeStatus> EmployeeStatus { get; set; }
+        public DbSet<Department> Department { get; set; }
         public DbSet<Report> Report { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
