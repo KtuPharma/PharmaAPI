@@ -45,7 +45,7 @@ namespace API.Models.DTO
         public DateTime BirthDate { get; set; }
 
         [Required]
-        [JsonProperty("pharmacywarehouseortruck")]
+        [JsonProperty("pharmacyWarehouseOrTruck")]
         public int PharmacyWarehouseOrTruck { get; set; }
     }
 }

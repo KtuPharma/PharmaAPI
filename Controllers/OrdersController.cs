@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using API.Models.DTO.Administrator;
 
 namespace API.Controllers
 {
@@ -16,9 +17,9 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [Authorize(Roles = "Admin,Warehouse")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders(int id)
+        [Authorize(Roles = "Admin, Warehouse")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
             if (!IsValidApiRequest())
             {
@@ -70,5 +71,56 @@ namespace API.Controllers
             Context.SaveChanges();
             return Ok();
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}/products")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> GetOrderProductsByOrder(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
+                .Select(p => new ProductBalanceInterDTO() {
+                        ExpirationDate = p.ExpirationDate,
+                        Price = p.Price,
+                        Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                        Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+            }).ToListAsync();
+
+            return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
+        }
+
+        [Authorize(Roles = "Pharmacy, Warehouse, Transportation, Admin")]
+        [HttpGet("{id}/order")]
+        public async Task<ActionResult<GetDataTDTO<OrderInterDTO>>> GetFullOrderById(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var order =  (Context.Order.Select(o => new OrdersDTO(
+                                                o, Context.ProductBalances
+                                                .Where(y => y.Order.Id == id)
+                                                .Sum(z => z.Price))).ToList())
+                                                .First(r => r.Id == id);
+
+
+            var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
+                .Select(p => new ProductBalanceInterDTO()
+                {
+                    ExpirationDate = p.ExpirationDate,
+                    Price = p.Price,
+                    Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                    Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+                }).ToListAsync();
+
+            var orderData = new OrderInterDTO(order, products);
+
+            return Ok(new GetDataTDTO<OrderInterDTO>(orderData));
+        }
+
     }
 }

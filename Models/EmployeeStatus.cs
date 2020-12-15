@@ -11,5 +11,13 @@
     {
         public EmployeeStatusId Id { get; set; }
         public string Name { get; set; }
+
+        public EmployeeStatus(){}
+
+        public EmployeeStatus(EmployeeStatus e)
+        {
+            Id = e.Id;
+            Name = e.Name;
+        }
     }
 }
