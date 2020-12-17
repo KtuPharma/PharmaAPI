@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using API.Models.Configurations;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using API.Models;
 
 namespace API.Models
 {
@@ -24,6 +20,7 @@ namespace API.Models
         public DbSet<EmployeeStatus> EmployeeStatus { get; set; }
         public DbSet<Department> Department { get; set; }
         public DbSet<Report> Report { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
