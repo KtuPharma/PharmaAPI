@@ -80,17 +80,11 @@ namespace API.Controllers
             {
                 case DepartmentId.Warehouse:
                     if (model.Status == OrderStatusId.Delivering || model.Status == OrderStatusId.Delivered)
-                    {
                         return NotAllowedError("This action is not allowed!");
-                    }
                     break;
                 case DepartmentId.Transportation:
                     if ((int)model.Status < 4)
-                    {
                         return NotAllowedError("This action is not allowed!");
-                    }
-                    break;
-                default:
                     break;
             }
 

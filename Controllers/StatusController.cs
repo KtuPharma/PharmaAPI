@@ -58,22 +58,23 @@ namespace API.Controllers
             }
 
             var user = await GetCurrentUser();
+            List<OrderStatus> status = null;
             switch (user.Department)
             {
                 case DepartmentId.Warehouse:
-                    var status = await Context.OrderStatus.Where(o => (int)o.Id < 4 || (int)o.Id == 6)
-                        .Select(o => new OrderStatus(o))
-                        .ToListAsync();
-                    return Ok(new GetDataDTO<OrderStatus>(status));
+                        status = await Context.OrderStatus.Where(o => (int)o.Id < 4 || (int)o.Id == 6)
+                            .Select(o => new OrderStatus(o))
+                            .ToListAsync();
+                    break;
                 case DepartmentId.Transportation:
-                    var status2 = await Context.OrderStatus.Where(o => (int)o.Id > 3)
-                        .Select(o => new OrderStatus(o))
-                        .ToListAsync();
-                    return Ok(new GetDataDTO<OrderStatus>(status2));
+                         status = await Context.OrderStatus.Where(o => (int)o.Id > 3)
+                            .Select(o => new OrderStatus(o))
+                            .ToListAsync();
+                    break;
                 default:
                     break;
             }
-            return Ok();
+            return Ok(new GetDataDTO<OrderStatus>(status));
         }
     }
 }
