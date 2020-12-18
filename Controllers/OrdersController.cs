@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using API.Models.DTO.Administrator;
+using System;
 
 namespace API.Controllers
 {
@@ -111,12 +112,13 @@ namespace API.Controllers
             }
 
             var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
-                .Select(p => new ProductBalanceInterDTO() {
-                        ExpirationDate = p.ExpirationDate,
-                        Price = p.Price,
-                        Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
-                        Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
-            }).ToListAsync();
+                .Select(p => new ProductBalanceInterDTO()
+                {
+                    ExpirationDate = p.ExpirationDate,
+                    Price = p.Price,
+                    Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                    Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+                }).ToListAsync();
 
             return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
         }
@@ -130,10 +132,10 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var order =  (Context.Order.Select(o => new OrdersDTO(
-                                                o, Context.ProductBalances
-                                                .Where(y => y.Order.Id == id)
-                                                .Sum(z => z.Price))).ToList())
+            var order = (Context.Order.Select(o => new OrdersDTO(
+                                               o, Context.ProductBalances
+                                               .Where(y => y.Order.Id == id)
+                                               .Sum(z => z.Price))).ToList())
                                                 .First(r => r.Id == id);
 
 
@@ -151,5 +153,23 @@ namespace API.Controllers
             return Ok(new GetDataTDTO<OrderInterDTO>(orderData));
         }
 
+        [Authorize(Roles = "Transportation")]
+        [HttpGet("{id}/{days}")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> PushDeliveryDateLater(int id, double days)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+            if (days < 8 && days < 1)
+            {
+                return NotAllowedError("Minimum days is 8");
+            }
+            var order = Context.Order.FirstOrDefault(o => o.Id == id);
+            order.DeliveryTime = order.DeliveryTime.AddDays(days);
+            Context.Order.Update(order);
+            Context.SaveChanges();
+            return Ok();
+        }
     }
 }
