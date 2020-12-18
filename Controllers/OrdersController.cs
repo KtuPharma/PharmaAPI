@@ -17,7 +17,7 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [Authorize(Roles = "Admin, Warehouse")]
+        [Authorize(Roles = "Admin, Warehouse, Transportation")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
@@ -40,7 +40,16 @@ namespace API.Controllers
                             )).ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
-                    orders = await Context.Order.Where(g => g.Warehouse.Id == user.Warehouse.Id)
+                    orders = await Context.Order.Where(g => g.Warehouse.Id == user.Warehouse.Id && g.Status != OrderStatusId.Delivered)
+                        .Select(o => new OrdersDTO(
+                            o,
+                            Context.ProductBalances
+                            .Where(y => y.Order.Id == o.Id)
+                            .Sum(z => z.Price)
+                            )).ToListAsync();
+                    break;
+                case DepartmentId.Transportation:
+                    orders = await Context.Order.Where(g => g.Status == OrderStatusId.Prepared || g.Status == OrderStatusId.Delivering)
                         .Select(o => new OrdersDTO(
                             o,
                             Context.ProductBalances
@@ -55,13 +64,33 @@ namespace API.Controllers
             return Ok(new GetDataDTO<OrdersDTO>(orders));
         }
 
-        [Authorize(Roles = "Warehouse")]
+        [Authorize(Roles = "Warehouse, Transportation")]
         [HttpPost("changeStatus")]
-        public ActionResult<EditOrderDTO> ChangeOrderTransportationStatus(EditOrderDTO model)
+        public async Task<ActionResult<IEnumerable<GetDataDTO<EditOrderDTO>>>> ChangeOrderTransportationStatus(EditOrderDTO model)
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
+            }
+
+            var user = await GetCurrentUser();
+
+            switch (user.Department)
+            {
+                case DepartmentId.Warehouse:
+                    if (model.Status == OrderStatusId.Delivering || model.Status == OrderStatusId.Delivered)
+                    {
+                        return NotAllowedError("This action is not allowed!");
+                    }
+                    break;
+                case DepartmentId.Transportation:
+                    if ((int)model.Status < 4)
+                    {
+                        return NotAllowedError("This action is not allowed!");
+                    }
+                    break;
+                default:
+                    break;
             }
 
             var order = Context.Order.Where(x => x.Id == model.OrderID).First();
