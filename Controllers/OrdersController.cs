@@ -36,27 +36,29 @@ namespace API.Controllers
                         .Select(o => new OrdersDTO(
                             o,
                             Context.ProductBalances
-                            .Where(y => y.Order.Id == o.Id)
-                            .Sum(z => z.Price)
-                            )).ToListAsync();
+                                .Where(y => y.Order.Id == o.Id)
+                                .Sum(z => z.Price)
+                        )).ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
-                    orders = await Context.Order.Where(g => g.Warehouse.Id == user.Warehouse.Id && g.Status != OrderStatusId.Delivered)
+                    orders = await Context.Order.Where(g =>
+                            g.Warehouse.Id == user.Warehouse.Id && g.Status != OrderStatusId.Delivered)
                         .Select(o => new OrdersDTO(
                             o,
                             Context.ProductBalances
-                            .Where(y => y.Order.Id == o.Id)
-                            .Sum(z => z.Price)
-                            )).ToListAsync();
+                                .Where(y => y.Order.Id == o.Id)
+                                .Sum(z => z.Price)
+                        )).ToListAsync();
                     break;
                 case DepartmentId.Transportation:
-                    orders = await Context.Order.Where(g => g.Status == OrderStatusId.Prepared || g.Status == OrderStatusId.Delivering)
+                    orders = await Context.Order.Where(g =>
+                            g.Status == OrderStatusId.Prepared || g.Status == OrderStatusId.Delivering)
                         .Select(o => new OrdersDTO(
                             o,
                             Context.ProductBalances
-                            .Where(y => y.Order.Id == o.Id)
-                            .Sum(z => z.Price)
-                            )).ToListAsync();
+                                .Where(y => y.Order.Id == o.Id)
+                                .Sum(z => z.Price)
+                        )).ToListAsync();
                     break;
                 default:
                     return NotAllowedError("This action is not allowed!");
@@ -67,7 +69,8 @@ namespace API.Controllers
 
         [Authorize(Roles = "Warehouse, Transportation")]
         [HttpPost("changeStatus")]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<EditOrderDTO>>>> ChangeOrderTransportationStatus(EditOrderDTO model)
+        public async Task<ActionResult<IEnumerable<GetDataDTO<EditOrderDTO>>>> ChangeOrderTransportationStatus(
+            EditOrderDTO model)
         {
             if (!IsValidApiRequest())
             {
@@ -83,16 +86,18 @@ namespace API.Controllers
                         return NotAllowedError("This action is not allowed!");
                     break;
                 case DepartmentId.Transportation:
-                    if ((int)model.Status < 4)
+                    if (model.Status < OrderStatusId.Delivering)
                         return NotAllowedError("This action is not allowed!");
                     break;
+                default:
+                    return NotAllowedError("This action is not allowed!");
             }
 
-            var order = Context.Order.Where(x => x.Id == model.OrderID).First();
+            var order = Context.Order.First(x => x.Id == model.OrderID);
 
             order.Status = model.Status;
             Context.Order.Update(order);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
             return Ok();
         }
 
@@ -127,10 +132,10 @@ namespace API.Controllers
             }
 
             var order = (Context.Order.Select(o => new OrdersDTO(
-                                               o, Context.ProductBalances
-                                               .Where(y => y.Order.Id == id)
-                                               .Sum(z => z.Price))).ToList())
-                                                .First(r => r.Id == id);
+                    o, Context.ProductBalances
+                        .Where(y => y.Order.Id == id)
+                        .Sum(z => z.Price))).ToList())
+                .First(r => r.Id == id);
 
 
             var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
@@ -155,10 +160,12 @@ namespace API.Controllers
             {
                 return ApiBadRequest("Invalid Headers!");
             }
-            if (days < 8 && days < 1)
+
+            if (days < 1 || days > 7)
             {
-                return NotAllowedError("Minimum days is 8");
+                return ApiBadRequest("Days count should be between 1 and 7");
             }
+
             var order = Context.Order.FirstOrDefault(o => o.Id == id);
             order.DeliveryTime = order.DeliveryTime.AddDays(days);
             Context.Order.Update(order);
