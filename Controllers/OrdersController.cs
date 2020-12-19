@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using API.Models.DTO.Administrator;
-using System;
 
 namespace API.Controllers
 {
@@ -18,9 +17,9 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [Authorize(Roles = "Admin, Warehouse, Transportation")]
+        [Authorize(Roles = "Admin, Warehouse, Transportation, Pharmacy")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
+        public async Task<ActionResult<GetDataDTO<OrdersDTO>>> GetOrders()
         {
             if (!IsValidApiRequest())
             {
@@ -35,15 +34,19 @@ namespace API.Controllers
                     orders = await Context.Order.ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
-                    orders = await Context.Order.Where(g =>
-                            g.Warehouse.Id == user.Warehouse.Id &&
-                            g.Status != OrderStatusId.Delivered)
+                    orders = await Context.Order.Where(o =>
+                            o.Warehouse.Id == user.Warehouse.Id &&
+                            o.Status != OrderStatusId.Delivered)
                         .ToListAsync();
                     break;
                 case DepartmentId.Transportation:
-                    orders = await Context.Order.Where(g =>
-                        g.Status == OrderStatusId.Prepared ||
-                        g.Status == OrderStatusId.Delivering).ToListAsync();
+                    orders = await Context.Order.Where(o =>
+                        o.Status == OrderStatusId.Prepared ||
+                        o.Status == OrderStatusId.Delivering).ToListAsync();
+                    break;
+                case DepartmentId.Pharmacy:
+                    orders = await Context.Order.Where(o =>
+                        o.Employee == user).ToListAsync();
                     break;
                 default:
                     return NotAllowedError("This action is not allowed!");
