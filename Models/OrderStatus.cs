@@ -14,5 +14,13 @@
     {
         public OrderStatusId Id { get; set; }
         public string Name { get; set; }
+
+        public OrderStatus() { }
+
+        public OrderStatus(OrderStatus o)
+        {
+            Id = o.Id;
+            Name = o.Name;
+        }
     }
 }

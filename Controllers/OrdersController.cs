@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using API.Models.DTO.Administrator;
+using System;
 
 namespace API.Controllers
 {
@@ -17,7 +18,7 @@ namespace API.Controllers
     {
         public OrdersController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
 
-        [Authorize(Roles = "Admin, Warehouse")]
+        [Authorize(Roles = "Admin, Warehouse, Transportation")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetDataDTO<OrdersDTO>>>> GetOrders()
         {
@@ -27,48 +28,69 @@ namespace API.Controllers
             }
 
             var user = await GetCurrentUser();
-            List<OrdersDTO> orders;
+            IList<Order> orders;
             switch (user.Department)
             {
                 case DepartmentId.Admin:
-                    orders = await Context.Order
-                        .Select(o => new OrdersDTO(
-                            o,
-                            Context.ProductBalances
-                            .Where(y => y.Order.Id == o.Id)
-                            .Sum(z => z.Price)
-                            )).ToListAsync();
+                    orders = await Context.Order.ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
-                    orders = await Context.Order.Where(g => g.Warehouse.Id == user.Warehouse.Id)
-                        .Select(o => new OrdersDTO(
-                            o,
-                            Context.ProductBalances
-                            .Where(y => y.Order.Id == o.Id)
-                            .Sum(z => z.Price)
-                            )).ToListAsync();
+                    orders = await Context.Order.Where(g =>
+                            g.Warehouse.Id == user.Warehouse.Id &&
+                            g.Status != OrderStatusId.Delivered)
+                        .ToListAsync();
+                    break;
+                case DepartmentId.Transportation:
+                    orders = await Context.Order.Where(g =>
+                        g.Status == OrderStatusId.Prepared ||
+                        g.Status == OrderStatusId.Delivering).ToListAsync();
                     break;
                 default:
                     return NotAllowedError("This action is not allowed!");
             }
 
-            return Ok(new GetDataDTO<OrdersDTO>(orders));
+            var preparedOrders = orders.Select(o =>
+                new OrdersDTO(
+                    o,
+                    Context.ProductBalances
+                        .Where(pb => pb.Order.Id == o.Id)
+                        .Sum(s => s.Price)
+                ));
+
+            return Ok(new GetDataDTO<OrdersDTO>(preparedOrders));
         }
 
-        [Authorize(Roles = "Warehouse")]
+        [Authorize(Roles = "Warehouse, Transportation")]
         [HttpPost("changeStatus")]
-        public ActionResult<EditOrderDTO> ChangeOrderTransportationStatus(EditOrderDTO model)
+        public async Task<ActionResult<IEnumerable<GetDataDTO<EditOrderDTO>>>> ChangeOrderTransportationStatus(
+            EditOrderDTO model)
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var order = Context.Order.Where(x => x.Id == model.OrderID).First();
+            var user = await GetCurrentUser();
+
+            switch (user.Department)
+            {
+                case DepartmentId.Warehouse:
+                    if (model.Status == OrderStatusId.Delivering || model.Status == OrderStatusId.Delivered)
+                        return NotAllowedError("This action is not allowed!");
+                    break;
+                case DepartmentId.Transportation:
+                    if (model.Status < OrderStatusId.Delivering)
+                        return NotAllowedError("This action is not allowed!");
+                    break;
+                default:
+                    return NotAllowedError("This action is not allowed!");
+            }
+
+            var order = Context.Order.First(x => x.Id == model.OrderID);
 
             order.Status = model.Status;
             Context.Order.Update(order);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
             return Ok();
         }
 
@@ -82,12 +104,13 @@ namespace API.Controllers
             }
 
             var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
-                .Select(p => new ProductBalanceInterDTO() {
-                        ExpirationDate = p.ExpirationDate,
-                        Price = p.Price,
-                        Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
-                        Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
-            }).ToListAsync();
+                .Select(p => new ProductBalanceInterDTO()
+                {
+                    ExpirationDate = p.ExpirationDate,
+                    Price = p.Price,
+                    Medicament = Context.Medicaments.FirstOrDefault(m => m.Id == p.Medicament.Id).Name,
+                    Provider = Context.MedicineProvider.FirstOrDefault(m => m.Id == p.Provider.Id).Name
+                }).ToListAsync();
 
             return Ok(new GetDataDTO<ProductBalanceInterDTO>(products));
         }
@@ -101,11 +124,11 @@ namespace API.Controllers
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var order =  (Context.Order.Select(o => new OrdersDTO(
-                                                o, Context.ProductBalances
-                                                .Where(y => y.Order.Id == id)
-                                                .Sum(z => z.Price))).ToList())
-                                                .First(r => r.Id == id);
+            var order = (Context.Order.Select(o => new OrdersDTO(
+                    o, Context.ProductBalances
+                        .Where(y => y.Order.Id == id)
+                        .Sum(z => z.Price))).ToList())
+                .First(r => r.Id == id);
 
 
             var products = await Context.ProductBalances.Where(p => p.Order.Id == id)
@@ -122,5 +145,25 @@ namespace API.Controllers
             return Ok(new GetDataTDTO<OrderInterDTO>(orderData));
         }
 
+        [Authorize(Roles = "Transportation")]
+        [HttpGet("{id}/{days}")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> PushDeliveryDateLater(int id, double days)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            if (days < 1 || days > 7)
+            {
+                return ApiBadRequest("Days count should be between 1 and 7");
+            }
+
+            var order = Context.Order.FirstOrDefault(o => o.Id == id);
+            order.DeliveryTime = order.DeliveryTime.AddDays(days);
+            Context.Order.Update(order);
+            Context.SaveChanges();
+            return Ok();
+        }
     }
 }

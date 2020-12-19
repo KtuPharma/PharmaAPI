@@ -47,5 +47,34 @@ namespace API.Controllers
                 .ToListAsync();
             return Ok(new GetDataDTO<Department>(role));
         }
+
+        [Authorize(Roles = "Warehouse, Transportation")]
+        [HttpGet("order")]
+        public async Task<ActionResult<IEnumerable<GetDataDTO<OrderStatus>>>> GetOrderStatus()
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var user = await GetCurrentUser();
+            List<OrderStatus> status = null;
+            switch (user.Department)
+            {
+                case DepartmentId.Warehouse:
+                        status = await Context.OrderStatus.Where(o => (int)o.Id < 4 || (int)o.Id == 6)
+                            .Select(o => new OrderStatus(o))
+                            .ToListAsync();
+                    break;
+                case DepartmentId.Transportation:
+                         status = await Context.OrderStatus.Where(o => (int)o.Id > 3)
+                            .Select(o => new OrderStatus(o))
+                            .ToListAsync();
+                    break;
+                default:
+                    break;
+            }
+            return Ok(new GetDataDTO<OrderStatus>(status));
+        }
     }
 }
