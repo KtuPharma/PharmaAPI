@@ -74,20 +74,68 @@ namespace API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Warehouse")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetDataDTO<MedicineProviderDTO>>>> GetProviders()
+        public async Task<ActionResult<GetDataDTO<MedicineProviderDTO>>> GetProviders()
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var provider = await Context.MedicineProvider
-                .Where(m => m.Status)
-                .Select(z => new MedicineProviderDTO(z))
+            var user = await GetCurrentUser();
+            IList<MedicineProvider> providers = null;
+            switch (user.Department)
+            {
+                case DepartmentId.Admin:
+                    providers = await Context.MedicineProvider
+                        .Where(m => m.Status)
+                        .ToListAsync();
+                    break;
+                case DepartmentId.Warehouse:
+                    await Context.Entry(user.Warehouse)
+                        .Collection(w => w.ProviderWarehouses)
+                        .LoadAsync();
+
+                    foreach (var pw in user.Warehouse.ProviderWarehouses)
+                    {
+                        await Context.Entry(pw)
+                            .Reference(w => w.Provider)
+                            .LoadAsync();
+                    }
+
+                    providers = user.Warehouse.ProviderWarehouses
+                        .Select(pw => pw.Provider)
+                        .Where(p => p.Status)
+                        .ToList();
+                    break;
+                default:
+                    return NotAllowedError("This action is not allowed!");
+            }
+
+            var preparedProviders = providers.Select(p => new MedicineProviderDTO(p));
+            return Ok(new GetDataDTO<MedicineProviderDTO>(preparedProviders));
+        }
+
+        [Authorize(Roles = "Warehouse")]
+        [HttpGet("{id}/products")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceDTO>>> GetProducts(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var products = await Context.ProductBalances
+                .Where(pb => pb.Provider.Id == id)
+                .Where(pb => pb.Warehouse == null)
+                .Where(pb => pb.Order == null)
+                .Where(pb => pb.Pharmacy == null)
+                .Include(pb => pb.Medicament)
+                .Select(pb => new ProductBalanceDTO(pb))
                 .ToListAsync();
-            return Ok(new GetDataDTO<MedicineProviderDTO>(provider));
+
+            return Ok(new GetDataDTO<ProductBalanceDTO>(products));
         }
     }
 }
