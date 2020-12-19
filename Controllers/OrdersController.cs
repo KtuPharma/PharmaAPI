@@ -28,43 +28,36 @@ namespace API.Controllers
             }
 
             var user = await GetCurrentUser();
-            List<OrdersDTO> orders;
+            IList<Order> orders;
             switch (user.Department)
             {
                 case DepartmentId.Admin:
-                    orders = await Context.Order
-                        .Select(o => new OrdersDTO(
-                            o,
-                            Context.ProductBalances
-                                .Where(y => y.Order.Id == o.Id)
-                                .Sum(z => z.Price)
-                        )).ToListAsync();
+                    orders = await Context.Order.ToListAsync();
                     break;
                 case DepartmentId.Warehouse:
                     orders = await Context.Order.Where(g =>
-                            g.Warehouse.Id == user.Warehouse.Id && g.Status != OrderStatusId.Delivered)
-                        .Select(o => new OrdersDTO(
-                            o,
-                            Context.ProductBalances
-                                .Where(y => y.Order.Id == o.Id)
-                                .Sum(z => z.Price)
-                        )).ToListAsync();
+                            g.Warehouse.Id == user.Warehouse.Id &&
+                            g.Status != OrderStatusId.Delivered)
+                        .ToListAsync();
                     break;
                 case DepartmentId.Transportation:
                     orders = await Context.Order.Where(g =>
-                            g.Status == OrderStatusId.Prepared || g.Status == OrderStatusId.Delivering)
-                        .Select(o => new OrdersDTO(
-                            o,
-                            Context.ProductBalances
-                                .Where(y => y.Order.Id == o.Id)
-                                .Sum(z => z.Price)
-                        )).ToListAsync();
+                        g.Status == OrderStatusId.Prepared ||
+                        g.Status == OrderStatusId.Delivering).ToListAsync();
                     break;
                 default:
                     return NotAllowedError("This action is not allowed!");
             }
 
-            return Ok(new GetDataDTO<OrdersDTO>(orders));
+            var preparedOrders = orders.Select(o =>
+                new OrdersDTO(
+                    o,
+                    Context.ProductBalances
+                        .Where(pb => pb.Order.Id == o.Id)
+                        .Sum(s => s.Price)
+                ));
+
+            return Ok(new GetDataDTO<OrdersDTO>(preparedOrders));
         }
 
         [Authorize(Roles = "Warehouse, Transportation")]
