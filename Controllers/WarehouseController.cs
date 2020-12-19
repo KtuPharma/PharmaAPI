@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
@@ -16,22 +15,46 @@ namespace API.Controllers
     [ApiController]
     public class WarehouseController : ApiControllerBase
     {
-        public WarehouseController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
+        public WarehouseController(ApiContext context, UserManager<Employee> userManager) :
+            base(context, userManager) { }
 
-        [Authorize(Roles = "Warehouse")]
+        [Authorize(Roles = "Pharmacy")]
         [HttpGet]
-        public async Task<ActionResult<GetProductBalancesDTO>> GetProductBalances()
+        public async Task<ActionResult<GetDataDTO<GetWarehouseDTO>>> GetWarehouses()
         {
             if (!IsValidApiRequest())
             {
                 return ApiBadRequest("Invalid Headers!");
             }
 
-            var balances = await Context.ProductBalances
-                .Select(x => new ProductBalanceDTO(x))
+            var warehouses = await Context.Warehouse
+                .Select(w => new GetWarehouseDTO(w))
                 .ToListAsync();
 
-            return Ok(new GetProductBalancesDTO(balances));
+            return Ok(new GetDataDTO<GetWarehouseDTO>(warehouses));
+        }
+
+        [Authorize(Roles = "Pharmacy, Warehouse")]
+        [HttpGet("{id}/products")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceDTO>>> GetProductBalances(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var products = await Context.ProductBalances
+                .Where(pb => pb.Warehouse.Id == id)
+                .ToListAsync();
+
+            var productList = new List<ProductBalanceDTO>();
+            foreach (var product in products)
+            {
+                await Context.Entry(product).Reference(pb => pb.Medicament).LoadAsync();
+                productList.Add(new ProductBalanceDTO(product));
+            }
+
+            return Ok(new GetDataDTO<ProductBalanceDTO>(productList));
         }
 
         [Authorize(Roles = "Warehouse")]
