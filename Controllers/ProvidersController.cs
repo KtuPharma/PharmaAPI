@@ -128,6 +128,9 @@ namespace API.Controllers
 
             var products = await Context.ProductBalances
                 .Where(pb => pb.Provider.Id == id)
+                .Where(pb => pb.Warehouse == null)
+                .Where(pb => pb.Order == null)
+                .Where(pb => pb.Pharmacy == null)
                 .Include(pb => pb.Medicament)
                 .Select(pb => new ProductBalanceDTO(pb))
                 .ToListAsync();
