@@ -16,12 +16,16 @@ namespace API.Models.DTO
         [JsonProperty("quantity")]
         public int Quantity { get; set; }
 
+        [JsonProperty("inSale")]
+        public bool InSale { get; set; }
+
         public ProductBalanceDTO(ProductBalance pb)
         {
             Id = pb.Id;
             Name = pb.Medicament.Name;
             Price = pb.Price;
             Quantity = pb.Quantity;
+            InSale = pb.InSale;
         }
     }
 }

@@ -35,5 +35,18 @@ namespace API.Models
         public Warehouse Warehouse { get; set; }
 
         public MedicineProvider Provider { get; set; }
+
+        public ProductBalance() { }
+
+        public ProductBalance(ProductBalance pb, int quantity, Warehouse w)
+        {
+            ExpirationDate = pb.ExpirationDate;
+            Price = pb.Price;
+            Quantity = quantity;
+            InSale = true;
+            Medicament = pb.Medicament;
+            Warehouse = w;
+            Provider = pb.Provider;
+        }
     }
 }
