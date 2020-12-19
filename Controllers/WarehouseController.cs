@@ -20,7 +20,7 @@ namespace API.Controllers
 
         [Authorize(Roles = "Pharmacy")]
         [HttpGet]
-        public async Task<ActionResult<GetProductBalancesDTO>> GetWarehouses()
+        public async Task<ActionResult<GetDataDTO<GetWarehouseDTO>>> GetWarehouses()
         {
             if (!IsValidApiRequest())
             {
@@ -36,7 +36,7 @@ namespace API.Controllers
 
         [Authorize(Roles = "Pharmacy, Warehouse")]
         [HttpGet("{id}/products")]
-        public async Task<ActionResult<GetProductBalancesDTO>> GetProductBalances(int id)
+        public async Task<ActionResult<GetDataDTO<ProductBalanceDTO>>> GetProductBalances(int id)
         {
             if (!IsValidApiRequest())
             {
