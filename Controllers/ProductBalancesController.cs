@@ -62,7 +62,7 @@ namespace API.Controllers
 
         [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}")]
-        public async Task<ActionResult<ProductBalanceDTO>> UpdateProductBalance(int id)
+        public async Task<ActionResult> UpdateProductBalance(int id)
         {
             if (!IsValidApiRequest())
             {
@@ -75,9 +75,9 @@ namespace API.Controllers
 
             balance.InSale = !balance.InSale;
             Context.ProductBalances.Update(balance);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
 
-            return Ok(new ProductBalanceDTO(balance));
+            return Ok();
         }
     }
 }
