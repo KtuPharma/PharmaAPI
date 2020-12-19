@@ -87,29 +87,13 @@ namespace API.Controllers
             }
 
             var order = Context.Order.First(x => x.Id == model.OrderID);
+            Context.Entry(order).Reference(x => x.Warehouse).Load();
 
-            var products = await Context.ProductBalances.Where(x => x.Order != null && x.Order.Id == order.Id).ToListAsync();
+            var products = await Context.ProductBalances.Where(x => x.Order.Id == order.Id).Include(m => m.Medicament).ToListAsync();
+            var productsWarehouse = await Context.ProductBalances.
+                Where(pb => pb.Warehouse.Id == order.Warehouse.Id).Include (m => m.Medicament).ToListAsync();
 
-            var productsWarehouse = await Context.ProductBalances
-                        .Where(pb => pb.Warehouse.Id == user.Warehouse.Id)
-                        .ToListAsync();
-
-            if (model.Status == OrderStatusId.Canceled)
-            {
-                foreach (var pr in products)
-                {
-                    foreach (var prW in productsWarehouse)
-                    {
-                        if (pr.Id == prW.Id)
-                        {
-                            prW.Quantity += pr.Quantity;
-                            Context.ProductBalances.Update(prW);
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (model.Status == OrderStatusId.Prepared)
+            if (model.Status == OrderStatusId.Canceled || model.Status == OrderStatusId.Prepared)
             {
                 foreach (var pr in products)
                 {
@@ -117,7 +101,14 @@ namespace API.Controllers
                     {
                         if (pr.Medicament.Id == prW.Medicament.Id)
                         {
-                            prW.Quantity -= pr.Quantity;
+                            if (model.Status == OrderStatusId.Canceled)
+                            {
+                                prW.Quantity += pr.Quantity;
+                            }
+                            else
+                            {
+                                prW.Quantity -= pr.Quantity;
+                            }
                             Context.ProductBalances.Update(prW);
                             break;
                         }
