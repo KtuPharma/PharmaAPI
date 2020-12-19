@@ -195,20 +195,5 @@ namespace API.Controllers
             Context.SaveChanges();
             return Ok();
         }
-
-        [Authorize(Roles = "Warehouse")]
-        [HttpPost("OrderToWarehouse")]
-        public async Task<ActionResult<GetDataDTO<OrderFromProviderDTO>>> OrderToWarehouse(OrderFromProviderDTO model) 
-        {
-            var user = await GetCurrentUser();
-            var products = Context.ProductBalances
-                .FirstOrDefault(o => o.Medicament.Id == model.MedicamentId 
-                                 && o.Provider.Id == model.ProviderId 
-                                 && o.Warehouse.Id == user.Warehouse.Id);
-            products.Quantity += model.Quantity;
-            Context.ProductBalances.Update(products);
-            Context.SaveChanges();
-            return Ok();
-        }
     }
 }
