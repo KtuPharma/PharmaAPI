@@ -15,10 +15,12 @@ namespace API.Controllers
     [ApiController]
     public class MedicamentsController : ApiControllerBase
     {
-        public MedicamentsController(ApiContext context, UserManager<Employee> userManager) : base(context, userManager) { }
+        public MedicamentsController(ApiContext context, UserManager<Employee> userManager) :
+            base(context, userManager) { }
 
+        [Authorize(Roles = "Warehouse, Pharmacy")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetMedicamentsDTO>>> GetMedicaments()
+        public async Task<ActionResult<GetDataDTO<MedicamentDTO>>> GetMedicaments()
         {
             if (!IsValidApiRequest())
             {
@@ -29,12 +31,12 @@ namespace API.Controllers
                 .Select(x => new MedicamentDTO(x))
                 .ToListAsync();
 
-            return Ok(new GetMedicamentsDTO(medicaments));
+            return Ok(new GetDataDTO<MedicamentDTO>(medicaments));
         }
 
         [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}")]
-        public async Task<ActionResult<MedicamentDTO>> UpdateMedicament(int id)
+        public async Task<ActionResult> UpdateMedicament(int id)
         {
             if (!IsValidApiRequest())
             {
@@ -47,9 +49,9 @@ namespace API.Controllers
 
             medicament.InSale = !medicament.InSale;
             Context.Medicaments.Update(medicament);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
 
-            return Ok(new MedicamentDTO(medicament));
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
