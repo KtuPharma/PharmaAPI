@@ -92,9 +92,10 @@ namespace API.Controllers
             var order = Context.Order.First(x => x.Id == model.OrderID);
             Context.Entry(order).Reference(x => x.Warehouse).Load();
 
-            var products = await Context.ProductBalances.Where(x => x.Order.Id == order.Id).Include(m => m.Medicament).ToListAsync();
-            var productsWarehouse = await Context.ProductBalances.
-                Where(pb => pb.Warehouse.Id == order.Warehouse.Id).Include (m => m.Medicament).ToListAsync();
+            var products = await Context.ProductBalances.Where(x => x.Order.Id == order.Id).Include(m => m.Medicament)
+                .ToListAsync();
+            var productsWarehouse = await Context.ProductBalances.Where(pb => pb.Warehouse.Id == order.Warehouse.Id)
+                .Include(m => m.Medicament).ToListAsync();
 
             if (model.Status == OrderStatusId.Canceled || model.Status == OrderStatusId.Prepared)
             {
@@ -112,12 +113,14 @@ namespace API.Controllers
                             {
                                 prW.Quantity -= pr.Quantity;
                             }
+
                             Context.ProductBalances.Update(prW);
                             break;
                         }
                     }
                 }
             }
+
             order.Status = model.Status;
             Context.Order.Update(order);
             await Context.SaveChangesAsync();

@@ -1,5 +1,4 @@
-﻿using API.Models.DTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -31,8 +30,22 @@ namespace API.Models
         public Warehouse Warehouse { get; set; }
 
         public ICollection<ProductBalance> Products { get; set; }
-        
+
         [Required]
         public Employee Employee { get; set; }
+
+        public Order() { }
+
+        public Order(Warehouse w, string toAddress, Employee e, ICollection<ProductBalance> products = null)
+        {
+            OrderTime = DateTime.Now;
+            DeliveryTime = OrderTime.AddDays(3);
+            AddressFrom = w.Address;
+            AddressTo = toAddress;
+            Status = OrderStatusId.Waiting;
+            Warehouse = w;
+            Products = products;
+            Employee = e;
+        }
     }
 }
