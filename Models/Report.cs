@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using API.Models.DTO.Administrator;
 
 namespace API.Models
 {
@@ -10,7 +11,7 @@ namespace API.Models
         public int Id { get; set; }
 
         [Required]
-        public int OrderAmount { get; set; }
+        public decimal OrderAmount { get; set; }
 
         [Required]
         public DateTime DateFrom { get; set; }
@@ -23,5 +24,16 @@ namespace API.Models
 
         [Required]
         public Pharmacy Pharmacy { get; set; }
+
+        public Report() { }
+
+        public Report(decimal sum, FilterPharmaciesReportDTO dates, Employee employee, Pharmacy pharmacy)
+        {
+            OrderAmount = sum;
+            DateFrom = dates.DateFrom;
+            DateTo = dates.DateTo;
+            Employee = employee;
+            Pharmacy = pharmacy;
+        }
     }
 }
