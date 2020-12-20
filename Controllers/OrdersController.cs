@@ -198,5 +198,21 @@ namespace API.Controllers
             Context.SaveChanges();
             return Ok();
         }
+
+        [Authorize(Roles = "Pharmacy, Transportation")]
+        [HttpGet("{id}/cancel")]
+        public async Task<ActionResult<GetDataDTO<ProductBalanceInterDTO>>> CancelOrder(int id)
+        {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
+            var order = Context.Order.FirstOrDefault(o => o.Id == id);
+            order.Status = OrderStatusId.Canceled;
+            Context.Order.Update(order);
+            await Context.SaveChangesAsync();
+            return Ok();
+        }
     }
 }
