@@ -77,6 +77,45 @@ namespace API.Controllers
             return Ok(new ProductBalanceDTO(balance));
         }
 
+        [Authorize(Roles = "Pharmacy")]
+        [HttpPost("{id}/order")]
+        public async Task<IActionResult> PlaceOrder(int id, IList<OrderRequestDTO> requestedProducts)
+        {
+            if (!IsValidApiRequest()) return ApiBadRequest("Invalid Headers!");
+            if (!AreProductsValid(id, requestedProducts)) return ApiBadRequest("Invalid product requested!");
+
+            var user = await GetCurrentUser();
+            var warehouse = await Context.Warehouse
+                .Where(w => w.Id == id)
+                .Include(w => w.Products)
+                .FirstAsync();
+
+            var order = new Order(warehouse, user.Pharmacy.Address, user);
+            var orderProducts = new List<ProductBalance>();
+            foreach (var requestedProduct in requestedProducts)
+            {
+                var product = GetProductInfoFromDto(requestedProduct);
+                var warehouseBalance = await Context.ProductBalances
+                    .Where(pb => pb.Id == product.Id)
+                    .Include(pb => pb.Medicament)
+                    .Include(pb => pb.Provider)
+                    .FirstAsync();
+                var newBalance = new ProductBalance(
+                    warehouseBalance,
+                    requestedProduct.Quantity,
+                    warehouse, user.Pharmacy
+                );
+                orderProducts.Add(newBalance);
+            }
+
+            order.Products = orderProducts;
+            await Context.ProductBalances.AddRangeAsync(orderProducts);
+            await Context.Order.AddAsync(order);
+            await Context.SaveChangesAsync();
+
+            return StatusCode(201);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("Addresses")]
         public async Task<ActionResult<IEnumerable<GetDataDTO<WorplaceDTO>>>> GetWarehousesAddresses()
@@ -90,6 +129,25 @@ namespace API.Controllers
                 .Select(z => new WorplaceDTO(z.Id, z.Address))
                 .ToListAsync();
             return Ok(new GetDataDTO<WorplaceDTO>(pharmacies));
+        }
+
+        private bool AreProductsValid(int id, IEnumerable<OrderRequestDTO> data)
+        {
+            return data.Select(requestProduct => Context.ProductBalances
+                    .Where(pb => pb.Id == requestProduct.ProductBalanceId)
+                    .Include(pb => pb.Medicament)
+                    .Select(pb => pb.Warehouse.Id)
+                    .First())
+                .All(warehouseId => warehouseId == id);
+        }
+
+        private ProductInfo GetProductInfoFromDto(OrderRequestDTO requestProduct)
+        {
+            return Context.ProductBalances
+                .Include(pb => pb.Medicament)
+                .Where(pb => pb.Id == requestProduct.ProductBalanceId)
+                .Select(pb => new ProductInfo(pb))
+                .First();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace API.Models
 
         public ProductBalance() { }
 
-        public ProductBalance(ProductBalance pb, int quantity, Warehouse w)
+        public ProductBalance(ProductBalance pb, int quantity, Warehouse w, Pharmacy p = null)
         {
             ExpirationDate = pb.ExpirationDate;
             Price = pb.Price;
@@ -47,6 +47,7 @@ namespace API.Models
             Medicament = pb.Medicament;
             Warehouse = w;
             Provider = pb.Provider;
+            Pharmacy = p;
         }
     }
 }

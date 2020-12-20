@@ -47,6 +47,11 @@ namespace API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateReport(FilterPharmaciesReportDTO model)
         {
+            if (!IsValidApiRequest())
+            {
+                return ApiBadRequest("Invalid Headers!");
+            }
+
             var user = await GetCurrentUser();
             decimal sum = Context.Order
                 .Where(o => o.Employee == user)

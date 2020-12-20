@@ -140,8 +140,8 @@ namespace API.Controllers
 
         [Authorize(Roles = "Warehouse")]
         [HttpPost("{id}/order")]
-        public async Task<ActionResult<GetDataDTO<OrderFromProviderDTO>>> OrderToWarehouse(int id,
-            IList<OrderFromProviderDTO> model)
+        public async Task<ActionResult<GetDataDTO<OrderRequestDTO>>> OrderToWarehouse(int id,
+            IList<OrderRequestDTO> model)
         {
             if (!IsValidApiRequest()) return ApiBadRequest("Invalid Headers!");
             if (!AreProductsValid(id, model)) return ApiBadRequest("Invalid product requested!");
@@ -167,7 +167,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        private bool AreProductsValid(int id, IEnumerable<OrderFromProviderDTO> data)
+        private bool AreProductsValid(int id, IEnumerable<OrderRequestDTO> data)
         {
             return data.Select(requestProduct => Context.ProductBalances
                     .Where(pb => pb.Id == requestProduct.ProductBalanceId)
@@ -194,7 +194,7 @@ namespace API.Controllers
             return false;
         }
 
-        private ProductInfo GetProductInfoFromDto(OrderFromProviderDTO requestProduct)
+        private ProductInfo GetProductInfoFromDto(OrderRequestDTO requestProduct)
         {
             return Context.ProductBalances
                 .Include(pb => pb.Medicament)

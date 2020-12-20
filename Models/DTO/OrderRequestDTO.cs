@@ -2,7 +2,7 @@
 
 namespace API.Models.DTO
 {
-    public class OrderFromProviderDTO
+    public class OrderRequestDTO
     {
         [JsonProperty("productBalanceId")]
         public int ProductBalanceId { get; set; }
