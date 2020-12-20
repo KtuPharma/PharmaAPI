@@ -22,6 +22,9 @@ namespace API.Models.DTO
         [JsonProperty("isReimbursed")]
         public bool IsReimbursed { get; }
 
+        [JsonProperty("inSale")]
+        public bool InSale { get; }
+
         [JsonProperty("country")]
         public string Country { get; }
 
@@ -36,6 +39,7 @@ namespace API.Models.DTO
             BarCode = m.BarCode;
             RecipeRequired = m.RecipeRequired;
             IsReimbursed = m.IsReimbursed;
+            InSale = m.InSale;
             Country = m.Country;
             Form = m.Form.ToString();
         }
